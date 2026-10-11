@@ -1,11 +1,16 @@
 #include "Decision.h"
 
-Decision::Decision(int id, int month, std::string decision, double budget) :
-    idPlayer_(id), month_(month), type_decision_(decision), budget_(budget) {}
+Decision::Decision(int id, int month, std::string decision,
+        double housingAdBudget, double supermarketAdBudget) :
+    idPlayer_(id), month_(month), type_decision_(decision),
+    housingAdBudget_(housingAdBudget),
+    supermarketAdBudget_(supermarketAdBudget) {}
 
 
 Decision::~Decision() {
 }
+
+// геттеры
 
 int Decision::getIdPlayer() const {
     return idPlayer_;
@@ -19,12 +24,15 @@ std::string Decision::getTypeDecision() const {
     return type_decision_;
 }
 
-double Decision::getBudget() const {
-    return budget_;
+double Decision::getHousingAdBudget() const {
+    return housingAdBudget_;
 }
 
-// Возврат порядка строительства
-// std::vector<Building> getBuildOrder();
+double Decision::getSupermarketAdBudget() const {
+    return supermarketAdBudget_;
+}
+
+// сеттеры
 
 void Decision::setIdPlayer(int id) {
     idPlayer_ = id;
@@ -36,9 +44,5 @@ void Decision::setMonth(int month) {
 
 void Decision::setTypeDecision(std::string decision) {
     type_decision_ = decision;
-}
-
-void Decision::setBudget(double budget) {
-    budget_ = budget;
 }
 
