@@ -1,0 +1,24 @@
+# зависимости node.js
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# cборка проекта
+dist/
+build/
+
+# лчные настройки ии-агентов (не публикуем)
+.codexignore
+.codex/
+.claudecodeignore
+
+# cекретные ключи авторизации
+.env
+.env.local
+config.toml
+
+# доки тз
+*.docx
+
+# для ии-агента
+AGENTS.md
