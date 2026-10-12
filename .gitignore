@@ -19,3 +19,6 @@ config.toml
 
 # доки тз
 *.docx
+
+# для ии-агента
+AGENTS.md
