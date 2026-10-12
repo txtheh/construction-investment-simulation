@@ -49,18 +49,38 @@ void Player::applyDecision(const Decision& decision) {
     const double supermarketAdBudget = decision.getSupermarketAdBudget();
     addExpenses(housingAdBudget * 1000.0);
     addExpenses(supermarketAdBudget * 1000.0);
-    const std::string& type = decision.getTypeDecision();
-    if (type == "panel") {
-        buildingQueue_.push_back(std::make_unique<House>(
-            HouseType::Panel, getHouseConfig(config_, HouseType::Panel)));
-    } else if (type == "monolith") {
-        buildingQueue_.push_back(std::make_unique<House>(
-            HouseType::Monolithic, getHouseConfig(config_, HouseType::Monolithic)));
-    } else if (type == "brick") {
-        buildingQueue_.push_back(std::make_unique<House>(
-            HouseType::Brick, getHouseConfig(config_, HouseType::Brick)));
-    } else if (type == "supermarket") {
-        buildingQueue_.push_back(std::make_unique<Supermarket>(config_.supermarket));
+    const auto addHouse = [this](HouseType type) {
+        const HouseConfig houseConfig = getHouseConfig(config_, type);
+        if (isHouseConfigValid(houseConfig)) {
+            buildingQueue_.push_back(std::make_unique<House>(type, houseConfig));
+        }
+    };
+    const auto& orders = decision.getConstructionOrders();
+    if (!orders.empty()) {
+        for (const ConstructionOrder& order : orders) {
+            if (order.count <= 0) {
+                continue;
+            }
+            for (int i = 0; i < order.count; ++i) {
+                if (order.buildingType == BuildingType::House) {
+                    addHouse(order.houseType);
+                } else if (order.buildingType == BuildingType::Supermarket
+                           && isSupermarketConfigValid(config_.supermarket)) {
+                    buildingQueue_.push_back(std::make_unique<Supermarket>(config_.supermarket));
+                }
+            }
+        }
+    } else {
+        const std::string& type = decision.getTypeDecision();
+        if (type == "panel") {
+            addHouse(HouseType::Panel);
+        } else if (type == "monolith") {
+            addHouse(HouseType::Monolithic);
+        } else if (type == "brick") {
+            addHouse(HouseType::Brick);
+        } else if (type == "supermarket" && isSupermarketConfigValid(config_.supermarket)) {
+            buildingQueue_.push_back(std::make_unique<Supermarket>(config_.supermarket));
+        }
     }
     housingAdBudget_ = housingAdBudget;
     supermarketAdBudget_ = supermarketAdBudget;
