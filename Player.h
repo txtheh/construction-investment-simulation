@@ -5,12 +5,12 @@
 #include "buildings.h"
 #include "Decision.h"
 #include "config.h"
-class GameState;
+class PublicView;
 class Player {
 public:
     Player(int id, std::string name, const Config& config);
     virtual ~Player() = default;
-    virtual Decision askDecision(const GameState& state) = 0;
+    virtual Decision askDecision(const PublicView& view) = 0;
     void applyDecision(const Decision& decision);
     void advanceConstruction();
     void recalculateTotalCapital();
