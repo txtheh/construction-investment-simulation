@@ -1,18 +1,21 @@
-# Зависимости Node.js (самое главное!)
+# зависимости node.js
 node_modules/
 package-lock.json
 npm-debug.log*
 
-# Сборка проекта
+# cборка проекта
 dist/
 build/
 
-# Личные настройки ИИ-агентов (не публикуем на GitHub)
+# лчные настройки ии-агентов (не публикуем)
 .codexignore
 .codex/
 .claudecodeignore
 
-# Секретные ключи авторизации
+# cекретные ключи авторизации
 .env
 .env.local
 config.toml
+
+# доки тз
+*.docx
