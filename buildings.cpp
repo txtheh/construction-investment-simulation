@@ -4,19 +4,8 @@
 #include <cmath>
 #include <limits>
 
-namespace {
-
-bool isPositive(double value) {
-    return std::isfinite(value) && value > 0.0;
-}
-
-bool isNonNegative(double value) {
-    return std::isfinite(value) && value >= 0.0;
-}
-
-} // namespace
-
-HouseConfig getHouseConfig(const Config& config, HouseType type) {
+HouseConfig getHouseConfig(const Config& config, HouseType type)
+{
     switch (type) {
     case HouseType::Panel:
         return config.panelHouse;
@@ -29,50 +18,66 @@ HouseConfig getHouseConfig(const Config& config, HouseType type) {
     return HouseConfig{0.0, 0, 0, 0.0};
 }
 
-bool isHouseConfigValid(const HouseConfig& houseConfig) {
-    return isPositive(houseConfig.cost)
+bool isHouseConfigValid(const HouseConfig& houseConfig)
+{
+    return std::isfinite(houseConfig.cost) && houseConfig.cost > 0.0
         && houseConfig.constructionMonths > 0
         && houseConfig.apartments > 0
-        && isPositive(houseConfig.apartmentArea);
+        && std::isfinite(houseConfig.apartmentArea)
+        && houseConfig.apartmentArea > 0.0;
 }
 
-bool isSupermarketConfigValid(const SupermarketConfig& supermarketConfig) {
-    return isPositive(supermarketConfig.cost)
+bool isSupermarketConfigValid(const SupermarketConfig& supermarketConfig)
+{
+    return std::isfinite(supermarketConfig.cost) && supermarketConfig.cost > 0.0
         && supermarketConfig.constructionMonths > 0;
 }
 
-bool isConfigValid(const Config& config) {
+bool isConfigValid(const Config& config)
+{
     if (config.playerCount < 2 || config.playerCount > 5
         || config.gameMonths < 6 || config.gameMonths > 24
-        || !isPositive(config.initialCapital)
-        || config.startMonth < 1 || config.startMonth > 12) {
+        || !std::isfinite(config.initialCapital) || config.initialCapital <= 0.0
+        || config.startMonth < 1 || config.startMonth > 12)
+{
         return false;
     }
 
     if (!isHouseConfigValid(config.panelHouse)
         || !isHouseConfigValid(config.monolithicHouse)
         || !isHouseConfigValid(config.brickHouse)
-        || !isSupermarketConfigValid(config.supermarket)) {
+        || !isSupermarketConfigValid(config.supermarket))
+{
         return false;
     }
 
-    if (!isNonNegative(config.baseHousingDemand)
-        || !isNonNegative(config.baseSupermarketProfit)
-        || !isNonNegative(config.supermarketDemandBonus)
-        || !isNonNegative(config.houseProfitBonus)
-        || !isNonNegative(config.underConstructionWeight)
-        || config.underConstructionWeight > 1.0
-        || !isPositive(config.fairPriceMultiplier)
-        || !isPositive(config.maxPriceMultiplier)
-        || !isNonNegative(config.housingAdBonusPer1000)
-        || !isNonNegative(config.supermarketAdBonusPer500)
-        || !isPositive(config.supermarketCapitalMultiplier)) {
+    if (!std::isfinite(config.baseHousingDemand) || config.baseHousingDemand < 0.0
+        || !std::isfinite(config.baseSupermarketProfit) || config.baseSupermarketProfit < 0.0
+        || !std::isfinite(config.supermarketDemandBonus) || config.supermarketDemandBonus < 0.0
+        || !std::isfinite(config.houseProfitBonus) || config.houseProfitBonus < 0.0
+        || !std::isfinite(config.underConstructionWeight)
+        || config.underConstructionWeight < 0.0 || config.underConstructionWeight > 1.0
+        || !std::isfinite(config.fairPriceMultiplier) || config.fairPriceMultiplier <= 0.0
+        || !std::isfinite(config.maxPriceMultiplier) || config.maxPriceMultiplier <= 0.0
+        || !std::isfinite(config.housingAdBonusPer1000) || config.housingAdBonusPer1000 < 0.0
+        || !std::isfinite(config.supermarketAdBonusPer500) || config.supermarketAdBonusPer500 < 0.0
+        || !std::isfinite(config.supermarketCapitalMultiplier)
+        || config.supermarketCapitalMultiplier <= 0.0)
+{
+        return false;
+    }
+
+    if (config.housingSeason.size() != 12
+        || config.supermarketSeason.size() != 12)
+{
         return false;
     }
 
     for (int month = 0; month < 12; ++month) {
-        if (!isNonNegative(config.housingSeason[month])
-            || !isNonNegative(config.supermarketSeason[month])) {
+        if (!std::isfinite(config.housingSeason[month])
+            || config.housingSeason[month] < 0.0
+            || !std::isfinite(config.supermarketSeason[month])
+            || config.supermarketSeason[month] < 0.0) {
             return false;
         }
     }
@@ -85,38 +90,47 @@ Building::Building(double cost, int constructionMonths)
       constructionMonthsValue(constructionMonths),
       monthsBuiltValue(0),
       spentValue(0.0),
-      startOrderValue(0) {
+      startOrderValue(0)
+{
 }
 
-double Building::cost() const {
+double Building::cost() const
+{
     return costValue;
 }
 
-int Building::constructionMonths() const {
+int Building::constructionMonths() const
+{
     return constructionMonthsValue;
 }
 
-int Building::monthsBuilt() const {
+int Building::monthsBuilt() const
+{
     return monthsBuiltValue;
 }
 
-double Building::spent() const {
+double Building::spent() const
+{
     return spentValue;
 }
 
-int Building::startOrder() const {
+int Building::startOrder() const
+{
     return startOrderValue;
 }
 
-void Building::setStartOrder(int order) {
+void Building::setStartOrder(int order)
+{
     startOrderValue = order;
 }
 
-bool Building::isBuilt() const {
+bool Building::isBuilt() const
+{
     return monthsBuiltValue >= constructionMonthsValue;
 }
 
-double Building::monthlyPayment() const {
+double Building::monthlyPayment() const
+{
     if (constructionMonthsValue <= 0) {
         return 0.0;
     }
@@ -124,11 +138,13 @@ double Building::monthlyPayment() const {
     return costValue / static_cast<double>(constructionMonthsValue);
 }
 
-double Building::nextPayment() const {
+double Building::nextPayment() const
+{
     return isBuilt() ? 0.0 : monthlyPayment();
 }
 
-void Building::advance() {
+void Building::advance()
+{
     if (isBuilt()) {
         return;
     }
@@ -147,26 +163,32 @@ House::House(HouseType type, const HouseConfig& houseConfig)
       houseType(type),
       apartmentCount(houseConfig.apartments),
       apartmentAreaValue(houseConfig.apartmentArea),
-      soldCount(0) {
+      soldCount(0)
+{
 }
 
-HouseType House::type() const {
+HouseType House::type() const
+{
     return houseType;
 }
 
-int House::apartments() const {
+int House::apartments() const
+{
     return apartmentCount;
 }
 
-double House::apartmentArea() const {
+double House::apartmentArea() const
+{
     return apartmentAreaValue;
 }
 
-int House::sold() const {
+int House::sold() const
+{
     return soldCount;
 }
 
-double House::costPerSqm() const {
+double House::costPerSqm() const
+{
     const double totalArea =
         static_cast<double>(apartmentCount) * apartmentAreaValue;
 
@@ -177,7 +199,8 @@ double House::costPerSqm() const {
     return cost() / totalArea;
 }
 
-int House::availableToSell() const {
+int House::availableToSell() const
+{
     int readyApartments = apartmentCount;
 
     if (!isBuilt()) {
@@ -195,7 +218,8 @@ int House::availableToSell() const {
     return std::max(0, readyApartments - soldCount);
 }
 
-int House::sell(int count) {
+int House::sell(int count)
+{
     if (count <= 0) {
         return 0;
     }
@@ -205,7 +229,8 @@ int House::sell(int count) {
     return actuallySold;
 }
 
-double House::constructionValue() const {
+double House::constructionValue() const
+{
     if (isBuilt()) {
         return 0.0;
     }
@@ -216,7 +241,8 @@ double House::constructionValue() const {
     return std::max(0.0, spent() - soldApartmentsCost);
 }
 
-double House::housingValue() const {
+double House::housingValue() const
+{
     if (!isBuilt()) {
         return 0.0;
     }
@@ -227,18 +253,22 @@ double House::housingValue() const {
 }
 
 Supermarket::Supermarket(const SupermarketConfig& supermarketConfig)
-    : Building(supermarketConfig.cost, supermarketConfig.constructionMonths) {
+    : Building(supermarketConfig.cost, supermarketConfig.constructionMonths)
+{
 }
 
-double Supermarket::constructionValue() const {
+double Supermarket::constructionValue() const
+{
     return isBuilt() ? 0.0 : spent();
 }
 
-double Supermarket::marketValue(double capitalMultiplier) const {
+double Supermarket::marketValue(double capitalMultiplier) const
+{
     return isBuilt() ? spent() * capitalMultiplier : 0.0;
 }
 
-bool Portfolio::addHouse(HouseType type, const Config& config) {
+bool Portfolio::addHouse(HouseType type, const Config& config)
+{
     const HouseConfig houseConfig = getHouseConfig(config, type);
     if (!isHouseConfigValid(houseConfig)) {
         return false;
@@ -250,7 +280,8 @@ bool Portfolio::addHouse(HouseType type, const Config& config) {
     return true;
 }
 
-bool Portfolio::addSupermarket(const Config& config) {
+bool Portfolio::addSupermarket(const Config& config)
+{
     if (!isSupermarketConfigValid(config.supermarket)) {
         return false;
     }
@@ -261,7 +292,8 @@ bool Portfolio::addSupermarket(const Config& config) {
     return true;
 }
 
-double Portfolio::totalMonthlyPayment() const {
+double Portfolio::totalMonthlyPayment() const
+{
     double total = 0.0;
 
     for (const House& house : houses) {
@@ -275,7 +307,8 @@ double Portfolio::totalMonthlyPayment() const {
     return total;
 }
 
-bool Portfolio::payOne(Building& building, double& cash) {
+bool Portfolio::payOne(Building& building, double& cash)
+{
     if (building.isBuilt()) {
         return true;
     }
@@ -293,7 +326,8 @@ bool Portfolio::payOne(Building& building, double& cash) {
     return true;
 }
 
-int Portfolio::payConstruction(double& cash) {
+int Portfolio::payConstruction(double& cash)
+{
     int frozenCount = 0;
     std::size_t houseIndex = 0;
     std::size_t marketIndex = 0;
@@ -328,7 +362,8 @@ int Portfolio::payConstruction(double& cash) {
     return frozenCount;
 }
 
-int Portfolio::builtHouses() const {
+int Portfolio::builtHouses() const
+{
     int count = 0;
 
     for (const House& house : houses) {
@@ -340,11 +375,13 @@ int Portfolio::builtHouses() const {
     return count;
 }
 
-int Portfolio::buildingHouses() const {
+int Portfolio::buildingHouses() const
+{
     return static_cast<int>(houses.size()) - builtHouses();
 }
 
-int Portfolio::builtMarkets() const {
+int Portfolio::builtMarkets() const
+{
     int count = 0;
 
     for (const Supermarket& supermarket : markets) {
@@ -356,11 +393,13 @@ int Portfolio::builtMarkets() const {
     return count;
 }
 
-int Portfolio::buildingMarkets() const {
+int Portfolio::buildingMarkets() const
+{
     return static_cast<int>(markets.size()) - builtMarkets();
 }
 
-int Portfolio::availableApartments(HouseType type) const {
+int Portfolio::availableApartments(HouseType type) const
+{
     int count = 0;
 
     for (const House& house : houses) {
@@ -372,7 +411,8 @@ int Portfolio::availableApartments(HouseType type) const {
     return count;
 }
 
-int Portfolio::sellApartments(HouseType type, int count) {
+int Portfolio::sellApartments(HouseType type, int count)
+{
     if (count <= 0) {
         return 0;
     }
@@ -394,7 +434,8 @@ int Portfolio::sellApartments(HouseType type, int count) {
     return soldCount;
 }
 
-double Portfolio::constructionValue() const {
+double Portfolio::constructionValue() const
+{
     double total = 0.0;
 
     for (const House& house : houses) {
@@ -408,7 +449,8 @@ double Portfolio::constructionValue() const {
     return total;
 }
 
-double Portfolio::housingValue() const {
+double Portfolio::housingValue() const
+{
     double total = 0.0;
 
     for (const House& house : houses) {
@@ -418,7 +460,8 @@ double Portfolio::housingValue() const {
     return total;
 }
 
-double Portfolio::marketsValue(const Config& config) const {
+double Portfolio::marketsValue(const Config& config) const
+{
     double total = 0.0;
 
     for (const Supermarket& supermarket : markets) {
@@ -428,6 +471,7 @@ double Portfolio::marketsValue(const Config& config) const {
     return total;
 }
 
-double Portfolio::capitalWithoutCash(const Config& config) const {
+double Portfolio::capitalWithoutCash(const Config& config) const
+{
     return constructionValue() + housingValue() + marketsValue(config);
 }

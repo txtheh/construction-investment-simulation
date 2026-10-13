@@ -18,50 +18,62 @@ Decision::Decision(int id, int month,
 
 Decision::~Decision() = default;
 
-int Decision::getIdPlayer() const {
+int Decision::getIdPlayer() const
+{
     return idPlayer_;
 }
 
-int Decision::getMonth() const {
+int Decision::getMonth() const
+{
     return month_;
 }
 
-std::string Decision::getTypeDecision() const {
+std::string Decision::getTypeDecision() const
+{
     return type_decision_;
 }
 
-const std::vector<ConstructionOrder>& Decision::getConstructionOrders() const {
+const std::vector<ConstructionOrder>& Decision::getConstructionOrders() const
+{
     return constructionOrders_;
 }
 
-const std::vector<HousingOfferDecision>& Decision::getHousingOffers() const {
+const std::vector<HousingOfferDecision>& Decision::getHousingOffers() const
+{
     return housingOffers_;
 }
 
-double Decision::getHousingAdBudget() const {
+double Decision::getHousingAdBudget() const
+{
     return housingAdBudget_;
 }
 
-double Decision::getSupermarketAdBudget() const {
+double Decision::getSupermarketAdBudget() const
+{
     return supermarketAdBudget_;
 }
 
-void Decision::setIdPlayer(int id) {
+void Decision::setIdPlayer(int id)
+{
     idPlayer_ = id;
 }
 
-void Decision::setMonth(int month) {
+void Decision::setMonth(int month)
+{
     month_ = month;
 }
 
-void Decision::setTypeDecision(std::string decision) {
+void Decision::setTypeDecision(std::string decision)
+{
     type_decision_ = std::move(decision);
 }
 
-void Decision::setConstructionOrders(std::vector<ConstructionOrder> constructionOrders) {
+void Decision::setConstructionOrders(std::vector<ConstructionOrder> constructionOrders)
+{
     constructionOrders_ = std::move(constructionOrders);
 }
 
-void Decision::setHousingOffers(std::vector<HousingOfferDecision> housingOffers) {
+void Decision::setHousingOffers(std::vector<HousingOfferDecision> housingOffers)
+{
     housingOffers_ = std::move(housingOffers);
 }

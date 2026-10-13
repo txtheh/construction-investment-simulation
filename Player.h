@@ -29,6 +29,9 @@ public:
 protected:
     const Config& getConfig() const;
 private:
+    void addHouseToQueue(HouseType type);
+    void addSupermarketToQueue();
+
     int id_;
     std::string name_;
     Config config_;

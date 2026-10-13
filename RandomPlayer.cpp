@@ -2,16 +2,16 @@
 #include "PublicView.h"
 #include "StrategyUtils.h"
 #include <algorithm>
-#include <array>
 #include <utility>
 #include <vector>
 
 RandomPlayer::RandomPlayer(int id, std::string name, const Config& config)
     : Player(id, std::move(name), config), generator_(std::random_device{}()) {}
 
-Decision RandomPlayer::askDecision(const PublicView& view) {
+Decision RandomPlayer::askDecision(const PublicView& view)
+{
     const Config& config = getConfig();
-    const std::array<double, 5> adChoices = {0.0, 0.5, 1.0, 1.5, 2.0};
+    const std::vector<double> adChoices = {0.0, 0.5, 1.0, 1.5, 2.0};
     std::uniform_int_distribution<std::size_t> adIndex(0, adChoices.size() - 1);
     const double requestedHousingAd =
         strategy_utils::totalAvailableApartments(view) > 0
@@ -22,12 +22,12 @@ Decision RandomPlayer::askDecision(const PublicView& view) {
     const auto ads = strategy_utils::fitAdBudgets(
         view, config, requestedHousingAd, requestedSupermarketAd);
     std::vector<ConstructionOrder> orders;
-    const std::array<std::pair<BuildingType, HouseType>, 4> choices = {{
+    const std::vector<std::pair<BuildingType, HouseType>> choices = {
         {BuildingType::House, HouseType::Panel},
         {BuildingType::House, HouseType::Monolithic},
         {BuildingType::House, HouseType::Brick},
         {BuildingType::Supermarket, HouseType::Panel}
-    }};
+    };
     std::uniform_int_distribution<int> buildCount(0, 2);
     const int desiredBuilds = buildCount(generator_);
     double plannedMonthlyPayments = 0.0;
@@ -61,7 +61,7 @@ Decision RandomPlayer::askDecision(const PublicView& view) {
             config, choice.first, choice.second);
     }
     std::vector<HousingOfferDecision> offers;
-    const std::array<HouseType, 3> houseTypes = {
+    const std::vector<HouseType> houseTypes = {
         HouseType::Panel, HouseType::Monolithic, HouseType::Brick
     };
     for (HouseType type : houseTypes) {

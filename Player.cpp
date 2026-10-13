@@ -7,69 +7,97 @@ Player::Player(int id, std::string name, const Config& config)
     : id_(id), name_(name), config_(config),
       capital_(config.initialCapital), totalCapital_(config.initialCapital) {}
 
-int Player::getId() const {
+int Player::getId() const
+{
     return id_;
 }
 
-const std::string& Player::getName() const {
+const std::string& Player::getName() const
+{
     return name_;
 }
 
-double Player::getCapital() const {
+double Player::getCapital() const
+{
     return capital_;
 }
 
-double Player::getTotalCapital() const {
+double Player::getTotalCapital() const
+{
     return totalCapital_;
 }
 
-bool Player::isBankrupt() const {
+bool Player::isBankrupt() const
+{
     return capital_ < 0.0;
 }
 
-const std::vector<std::unique_ptr<Building>>& Player::getBuildingQueue() const {
+const std::vector<std::unique_ptr<Building>>& Player::getBuildingQueue() const
+{
     return buildingQueue_;
 }
 
-const std::vector<House>& Player::getBuiltHouses() const {
+const std::vector<House>& Player::getBuiltHouses() const
+{
     return builtHouses_;
 }
 
-const std::vector<Supermarket>& Player::getBuiltSupermarkets() const {
+const std::vector<Supermarket>& Player::getBuiltSupermarkets() const
+{
     return builtSupermarkets_;
 }
 
-double Player::getHousingAdBudget() const {
+double Player::getHousingAdBudget() const
+{
     return housingAdBudget_;
 }
 
-double Player::getSupermarketAdBudget() const {
+double Player::getSupermarketAdBudget() const
+{
     return supermarketAdBudget_;
 }
 
-const Config& Player::getConfig() const {
+const Config& Player::getConfig() const
+{
     return config_;
 }
 
-void Player::addCapital(double delta) {
+void Player::addCapital(double delta)
+{
     capital_ += delta;
 }
 
-void Player::addExpenses(double amount) {
+void Player::addExpenses(double amount)
+{
     capital_ -= amount;
 }
 
-void Player::applyDecision(const Decision& decision) {
+void Player::addHouseToQueue(HouseType type)
+{
+    const HouseConfig houseConfig = getHouseConfig(config_, type);
+
+    if (!isHouseConfigValid(houseConfig)) {
+        return;
+    }
+
+    buildingQueue_.push_back(std::make_unique<House>(type, houseConfig));
+}
+
+void Player::addSupermarketToQueue()
+{
+    if (!isSupermarketConfigValid(config_.supermarket)) {
+        return;
+    }
+
+    buildingQueue_.push_back(std::make_unique<Supermarket>(config_.supermarket));
+}
+
+void Player::applyDecision(const Decision& decision)
+{
     const double housingAdBudget = decision.getHousingAdBudget();
     const double supermarketAdBudget = decision.getSupermarketAdBudget();
     addExpenses(housingAdBudget * 1000.0);
     addExpenses(supermarketAdBudget * 1000.0);
-    const auto addHouse = [this](HouseType type) {
-        const HouseConfig houseConfig = getHouseConfig(config_, type);
-        if (isHouseConfigValid(houseConfig)) {
-            buildingQueue_.push_back(std::make_unique<House>(type, houseConfig));
-        }
-    };
     const auto& orders = decision.getConstructionOrders();
     if (!orders.empty()) {
         for (const ConstructionOrder& order : orders) {
@@ -78,33 +106,30 @@ void Player::applyDecision(const Decision& decision) {
             }
             for (int i = 0; i < order.count; ++i) {
                 if (order.buildingType == BuildingType::House) {
-                    addHouse(order.houseType);
-                } else if (order.buildingType == BuildingType::Supermarket
-                           && isSupermarketConfigValid(config_.supermarket)) {
-                    buildingQueue_.push_back(
-                        std::make_unique<Supermarket>(config_.supermarket));
+                    addHouseToQueue(order.houseType);
+                } else if (order.buildingType == BuildingType::Supermarket) {
+                    addSupermarketToQueue();
                 }
             }
         }
     } else {
         const std::string& type = decision.getTypeDecision();
         if (type == "panel") {
-            addHouse(HouseType::Panel);
+            addHouseToQueue(HouseType::Panel);
         } else if (type == "monolith") {
-            addHouse(HouseType::Monolithic);
+            addHouseToQueue(HouseType::Monolithic);
         } else if (type == "brick") {
-            addHouse(HouseType::Brick);
-        } else if (type == "supermarket"
-                   && isSupermarketConfigValid(config_.supermarket)) {
-            buildingQueue_.push_back(
-                std::make_unique<Supermarket>(config_.supermarket));
+            addHouseToQueue(HouseType::Brick);
+        } else if (type == "supermarket") {
+            addSupermarketToQueue();
         }
     }
     housingAdBudget_ = housingAdBudget;
     supermarketAdBudget_ = supermarketAdBudget;
 }
 
-void Player::advanceConstruction() {
+void Player::advanceConstruction()
+{
     auto it = buildingQueue_.begin();
     while (it != buildingQueue_.end()) {
         Building* building = it->get();
@@ -130,7 +155,8 @@ void Player::advanceConstruction() {
     }
 }
 
-void Player::recalculateTotalCapital() {
+void Player::recalculateTotalCapital()
+{
     totalCapital_ = capital_;
     for (const auto& building : buildingQueue_) {
         if (const auto* house = dynamic_cast<const House*>(building.get())) {

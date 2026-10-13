@@ -4,36 +4,11 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
-namespace {
-struct Candidate {
-    const Offer* offer;
-    int baseSold;
-};
-struct FractionalShare {
-    std::size_t index;
-    double fraction;
-};
-int demandToApartments(double demand) {
-    if (!std::isfinite(demand) || demand <= 0.0) {
-        return 0;
-    }
-    return static_cast<int>(std::min(std::floor(demand + 1e-9),
-                                     static_cast<double>(std::numeric_limits<int>::max())));
-}
-int houseTypeIndex(HouseType type) {
-    switch (type) {
-    case HouseType::Panel:
-        return 0;
-    case HouseType::Monolithic:
-        return 1;
-    case HouseType::Brick:
-        return 2;
-    }
-    return -1;
-}
-}
+#include <vector>
+
 RealtorAgency::RealtorAgency(const Config& config) : config_(config) {}
-std::vector<HousingDemand> RealtorAgency::calculateDemands(int calendarMonth, const District& district) const {
+std::vector<HousingDemand> RealtorAgency::calculateDemands(int calendarMonth, const District& district) const
+{
     if (calendarMonth < 1 || calendarMonth > 12) {
         throw std::out_of_range("Calendar month must be between 1 and 12");
     }
@@ -47,11 +22,25 @@ std::vector<HousingDemand> RealtorAgency::calculateDemands(int calendarMonth, co
         {HouseType::Brick, safeDemand}
     };
 }
-std::vector<HousingSale> RealtorAgency::distributeSales(const std::vector<HousingDemand>& demands, const std::vector<Offer>& offers) const {
+std::vector<HousingSale> RealtorAgency::distributeSales(const std::vector<HousingDemand>& demands, const std::vector<Offer>& offers) const
+{
     std::vector<HousingSale> sales;
-    bool processedTypes[3] = {false, false, false};
+    std::vector<bool> processedTypes(3, false);
+
     for (const HousingDemand& demand : demands) {
-        const int index = houseTypeIndex(demand.houseType);
+        int index = -1;
+
+        switch (demand.houseType) {
+        case HouseType::Panel:
+            index = 0;
+            break;
+        case HouseType::Monolithic:
+            index = 1;
+            break;
+        case HouseType::Brick:
+            index = 2;
+            break;
+        }
         if (index < 0 || processedTypes[index]) {
             continue;
         }
@@ -61,7 +50,18 @@ std::vector<HousingSale> RealtorAgency::distributeSales(const std::vector<Housin
     }
     return sales;
 }
-std::vector<HousingSale> RealtorAgency::distributeType(HouseType type, double demand, const std::vector<Offer>& offers) const {
+std::vector<HousingSale> RealtorAgency::distributeType(HouseType type, double demand, const std::vector<Offer>& offers) const
+{
+    struct Candidate {
+        const Offer* offer;
+        int baseSold;
+    };
+
+    struct FractionalShare {
+        std::size_t index;
+        double fraction;
+    };
+
     std::vector<Candidate> candidates;
     for (const Offer& offer : offers) {
         const double price = offer.getPricePerSqm();
@@ -74,7 +74,13 @@ std::vector<HousingSale> RealtorAgency::distributeType(HouseType type, double de
     std::stable_sort(candidates.begin(), candidates.end(), [](const Candidate& left, const Candidate& right) {
         return left.offer->getPricePerSqm() < right.offer->getPricePerSqm();
     });
-    int remainingDemand = demandToApartments(demand);
+    int remainingDemand = 0;
+
+    if (std::isfinite(demand) && demand > 0.0) {
+        remainingDemand = static_cast<int>(std::min(
+            std::floor(demand + 1e-9),
+            static_cast<double>(std::numeric_limits<int>::max())));
+    }
     std::size_t groupStart = 0;
     while (groupStart < candidates.size() && remainingDemand > 0) {
         std::size_t groupEnd = groupStart + 1;

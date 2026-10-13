@@ -1,10 +1,10 @@
 #include "StrategyUtils.h"
 #include <algorithm>
-#include <array>
 #include <cmath>
 
 namespace strategy_utils {
-const HouseConfig& houseConfig(const Config& config, HouseType type) {
+const HouseConfig& houseConfig(const Config& config, HouseType type)
+{
     switch (type) {
     case HouseType::Panel:
         return config.panelHouse;
@@ -16,7 +16,8 @@ const HouseConfig& houseConfig(const Config& config, HouseType type) {
     return config.panelHouse;
 }
 
-double monthlyPayment(const Config& config, BuildingType buildingType, HouseType houseType) {
+double monthlyPayment(const Config& config, BuildingType buildingType, HouseType houseType)
+{
     double cost = 0.0;
     int months = 0;
     if (buildingType == BuildingType::Supermarket) {
@@ -30,7 +31,8 @@ double monthlyPayment(const Config& config, BuildingType buildingType, HouseType
     return months > 0 ? cost / static_cast<double>(months) : 0.0;
 }
 
-int availableApartments(const PublicView& view, HouseType type) {
+int availableApartments(const PublicView& view, HouseType type)
+{
     int total = 0;
     for (const BuildingView& building : view.getOwnBuildings()) {
         if (building.buildingType != BuildingType::House
@@ -49,13 +51,15 @@ int availableApartments(const PublicView& view, HouseType type) {
     return total;
 }
 
-int totalAvailableApartments(const PublicView& view) {
+int totalAvailableApartments(const PublicView& view)
+{
     return availableApartments(view, HouseType::Panel)
         + availableApartments(view, HouseType::Monolithic)
         + availableApartments(view, HouseType::Brick);
 }
 
-int ownBuildingCount(const PublicView& view, BuildingType type) {
+int ownBuildingCount(const PublicView& view, BuildingType type)
+{
     int count = 0;
     for (const BuildingView& building : view.getOwnBuildings()) {
         if (building.buildingType == type) {
@@ -65,7 +69,8 @@ int ownBuildingCount(const PublicView& view, BuildingType type) {
     return count;
 }
 
-bool hasBuiltSupermarket(const PublicView& view) {
+bool hasBuiltSupermarket(const PublicView& view)
+{
     for (const BuildingView& building : view.getOwnBuildings()) {
         if (building.buildingType == BuildingType::Supermarket && building.isBuilt) {
             return true;
@@ -74,7 +79,8 @@ bool hasBuiltSupermarket(const PublicView& view) {
     return false;
 }
 
-double nextConstructionPayments(const PublicView& view, const Config& config) {
+double nextConstructionPayments(const PublicView& view, const Config& config)
+{
     double total = 0.0;
     for (const BuildingView& building : view.getOwnBuildings()) {
         if (building.isBuilt || building.constructionMonths <= building.monthsBuilt) {
@@ -86,7 +92,8 @@ double nextConstructionPayments(const PublicView& view, const Config& config) {
 }
 
 AdBudgets fitAdBudgets(const PublicView& view, const Config& config,
-                       double housingBudget, double supermarketBudget) {
+                       double housingBudget, double supermarketBudget)
+{
     housingBudget = std::max(0.0, housingBudget);
     supermarketBudget = std::max(0.0, supermarketBudget);
     if (totalAvailableApartments(view) == 0) {
@@ -109,7 +116,8 @@ AdBudgets fitAdBudgets(const PublicView& view, const Config& config,
 
 int affordableNewBuildingCount(const PublicView& view, const Config& config,
                                BuildingType buildingType, HouseType houseType,
-                               const AdBudgets& ads, double plannedMonthlyPayments) {
+                               const AdBudgets& ads, double plannedMonthlyPayments)
+{
     if (view.getCurrentMonth() > 0 && view.getCurrentMonth() >= config.gameMonths) {
         return 0;
     }
@@ -127,7 +135,8 @@ int affordableNewBuildingCount(const PublicView& view, const Config& config,
     return static_cast<int>(std::floor((availableCash + 1e-8) / payment));
 }
 
-double fairPricePerSqm(const Config& config, HouseType type) {
+double fairPricePerSqm(const Config& config, HouseType type)
+{
     const HouseConfig& house = houseConfig(config, type);
     const double area = static_cast<double>(house.apartments) * house.apartmentArea;
     return area > 0.0 ? house.cost / area * config.fairPriceMultiplier : 0.0;
@@ -135,9 +144,10 @@ double fairPricePerSqm(const Config& config, HouseType type) {
 
 std::vector<HousingOfferDecision> makeHousingOffers(const PublicView& view,
                                                     const Config& config,
-                                                    double priceFactor) {
+                                                    double priceFactor)
+{
     std::vector<HousingOfferDecision> offers;
-    const std::array<HouseType, 3> types = {
+    const std::vector<HouseType> types = {
         HouseType::Panel, HouseType::Monolithic, HouseType::Brick
     };
     for (HouseType type : types) {

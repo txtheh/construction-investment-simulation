@@ -7,7 +7,8 @@
 BalancedPlayer::BalancedPlayer(int id, std::string name, const Config& config)
     : Player(id, std::move(name), config) {}
 
-Decision BalancedPlayer::askDecision(const PublicView& view) {
+Decision BalancedPlayer::askDecision(const PublicView& view)
+{
     const Config& config = getConfig();
     const auto ads = strategy_utils::fitAdBudgets(
         view, config,
@@ -18,7 +19,7 @@ Decision BalancedPlayer::askDecision(const PublicView& view) {
     const int markets = strategy_utils::ownBuildingCount(view, BuildingType::Supermarket);
     const bool preferHouse = houses <= markets;
     if (preferHouse) {
-        const HouseType houseTypes[] = {
+        const std::vector<HouseType> houseTypes = {
             HouseType::Panel, HouseType::Monolithic, HouseType::Brick
         };
         for (HouseType type : houseTypes) {
@@ -34,10 +35,11 @@ Decision BalancedPlayer::askDecision(const PublicView& view) {
             orders.push_back({BuildingType::Supermarket, HouseType::Panel, 1});
         }
     } else if (strategy_utils::affordableNewBuildingCount(
-                   view, config, BuildingType::Supermarket, HouseType::Panel, ads) > 0) {
+                   view, config, BuildingType::Supermarket, HouseType::Panel, ads) > 0)
+{
         orders.push_back({BuildingType::Supermarket, HouseType::Panel, 1});
     } else {
-        const HouseType houseTypes[] = {
+        const std::vector<HouseType> houseTypes = {
             HouseType::Panel, HouseType::Monolithic, HouseType::Brick
         };
         for (HouseType type : houseTypes) {

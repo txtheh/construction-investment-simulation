@@ -3,7 +3,8 @@
 
 District::District(const std::vector<std::unique_ptr<Player>>& players,
                    double underConstructionWeight)
-    : underConstructionWeight_(underConstructionWeight) {
+    : underConstructionWeight_(underConstructionWeight)
+{
     for (const auto& player : players) {
         if (!player) {
             continue;
@@ -23,27 +24,33 @@ District::District(const std::vector<std::unique_ptr<Player>>& players,
     }
 }
 
-int District::getBuiltHouseCount() const {
+int District::getBuiltHouseCount() const
+{
     return builtHouseCount_;
 }
 
-int District::getUnderConstructionHouseCount() const {
+int District::getUnderConstructionHouseCount() const
+{
     return underConstructionHouseCount_;
 }
 
-int District::getBuiltSupermarketCount() const {
+int District::getBuiltSupermarketCount() const
+{
     return builtSupermarketCount_;
 }
 
-int District::getUnderConstructionSupermarketCount() const {
+int District::getUnderConstructionSupermarketCount() const
+{
     return underConstructionSupermarketCount_;
 }
 
-double District::getWeightedHouseCount() const {
+double District::getWeightedHouseCount() const
+{
     return builtHouseCount_ + underConstructionWeight_ * underConstructionHouseCount_;
 }
 
-double District::getWeightedSupermarketCount() const {
+double District::getWeightedSupermarketCount() const
+{
     return builtSupermarketCount_
         + underConstructionWeight_ * underConstructionSupermarketCount_;
 }

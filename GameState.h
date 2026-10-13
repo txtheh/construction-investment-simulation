@@ -21,7 +21,9 @@ public:
     void recordDemand(const DemandRecord& demand);
     District getDistrict() const;
     PublicView createPublicView(int playerId) const;
+
 private:
+    BuildingView makeBuildingView(const Building& building, bool detailed) const;
     Config config_;
     int currentMonth_ = 0;
     std::vector<std::unique_ptr<Player>> players_;
