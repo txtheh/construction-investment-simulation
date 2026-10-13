@@ -105,8 +105,16 @@ std::vector<HousingSale> RealtorAgency::distributeType(HouseType type, double de
                 allocated += wholeShare;
                 fractions.push_back({i, exactShare - wholeShare});
             }
-            std::stable_sort(fractions.begin(), fractions.end(), [](const FractionalShare& left, const FractionalShare& right) {
-                return left.fraction > right.fraction;
+            std::stable_sort(fractions.begin(), fractions.end(), [&candidates](const FractionalShare& left, const FractionalShare& right) {
+                if (left.fraction != right.fraction) {
+                    return left.fraction > right.fraction;
+                }
+                const int leftPlayer = candidates[left.index].offer->getPlayerIndex();
+                const int rightPlayer = candidates[right.index].offer->getPlayerIndex();
+                if (leftPlayer != rightPlayer) {
+                    return leftPlayer < rightPlayer;
+                }
+                return left.index < right.index;
             });
             int leftover = groupDemand - allocated;
             for (const FractionalShare& share : fractions) {
