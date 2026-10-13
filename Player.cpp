@@ -2,48 +2,63 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+
 Player::Player(int id, std::string name, const Config& config)
     : id_(id), name_(name), config_(config),
       capital_(config.initialCapital), totalCapital_(config.initialCapital) {}
+
 int Player::getId() const {
     return id_;
 }
+
 const std::string& Player::getName() const {
     return name_;
 }
+
 double Player::getCapital() const {
     return capital_;
 }
+
 double Player::getTotalCapital() const {
     return totalCapital_;
 }
+
 bool Player::isBankrupt() const {
     return capital_ < 0.0;
 }
+
 const std::vector<std::unique_ptr<Building>>& Player::getBuildingQueue() const {
     return buildingQueue_;
 }
+
 const std::vector<House>& Player::getBuiltHouses() const {
     return builtHouses_;
 }
+
 const std::vector<Supermarket>& Player::getBuiltSupermarkets() const {
     return builtSupermarkets_;
 }
+
 double Player::getHousingAdBudget() const {
     return housingAdBudget_;
 }
+
 double Player::getSupermarketAdBudget() const {
     return supermarketAdBudget_;
 }
+
 const Config& Player::getConfig() const {
     return config_;
 }
+
 void Player::addCapital(double delta) {
     capital_ += delta;
 }
+
 void Player::addExpenses(double amount) {
     capital_ -= amount;
 }
+
 void Player::applyDecision(const Decision& decision) {
     const double housingAdBudget = decision.getHousingAdBudget();
     const double supermarketAdBudget = decision.getSupermarketAdBudget();
@@ -66,7 +81,8 @@ void Player::applyDecision(const Decision& decision) {
                     addHouse(order.houseType);
                 } else if (order.buildingType == BuildingType::Supermarket
                            && isSupermarketConfigValid(config_.supermarket)) {
-                    buildingQueue_.push_back(std::make_unique<Supermarket>(config_.supermarket));
+                    buildingQueue_.push_back(
+                        std::make_unique<Supermarket>(config_.supermarket));
                 }
             }
         }
@@ -78,13 +94,16 @@ void Player::applyDecision(const Decision& decision) {
             addHouse(HouseType::Monolithic);
         } else if (type == "brick") {
             addHouse(HouseType::Brick);
-        } else if (type == "supermarket" && isSupermarketConfigValid(config_.supermarket)) {
-            buildingQueue_.push_back(std::make_unique<Supermarket>(config_.supermarket));
+        } else if (type == "supermarket"
+                   && isSupermarketConfigValid(config_.supermarket)) {
+            buildingQueue_.push_back(
+                std::make_unique<Supermarket>(config_.supermarket));
         }
     }
     housingAdBudget_ = housingAdBudget;
     supermarketAdBudget_ = supermarketAdBudget;
 }
+
 void Player::advanceConstruction() {
     auto it = buildingQueue_.begin();
     while (it != buildingQueue_.end()) {
@@ -110,6 +129,7 @@ void Player::advanceConstruction() {
         }
     }
 }
+
 void Player::recalculateTotalCapital() {
     totalCapital_ = capital_;
     for (const auto& building : buildingQueue_) {
