@@ -14,6 +14,7 @@ public:
     void applyDecision(const Decision& decision);
     void advanceConstruction();
     void recalculateTotalCapital();
+    int sellApartments(HouseType type, int count);
     int getId() const;
     const std::string& getName() const;
     double getCapital() const;

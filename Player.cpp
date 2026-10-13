@@ -155,6 +155,38 @@ void Player::advanceConstruction()
     }
 }
 
+int Player::sellApartments(HouseType type, int count)
+{
+    if (count <= 0) {
+        return 0;
+    }
+
+    int remaining = count;
+
+    for (House& house : builtHouses_) {
+        if (remaining == 0) {
+            break;
+        }
+
+        if (house.type() == type) {
+            remaining -= house.sell(remaining);
+        }
+    }
+
+    for (const auto& building : buildingQueue_) {
+        if (remaining == 0) {
+            break;
+        }
+
+        House* house = dynamic_cast<House*>(building.get());
+        if (house && house->type() == type) {
+            remaining -= house->sell(remaining);
+        }
+    }
+
+    return count - remaining;
+}
+
 void Player::recalculateTotalCapital()
 {
     totalCapital_ = capital_;
