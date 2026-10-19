@@ -22,3 +22,6 @@ config.toml
 
 # для ии-агента
 AGENTS.md
+
+# личная часть qt
+.qtcreator
