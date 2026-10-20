@@ -11,18 +11,27 @@ BalancedPlayer::BalancedPlayer(int id, std::string name, const Config& config)
 Decision BalancedPlayer::askDecision(const PublicView& view)
 {
     const Config& config = getConfig();
-    const auto ads = strategy_utils::fitAdBudgets(
+
+    /*const auto ads = strategy_utils::fitAdBudgets(
         view, config,
         strategy_utils::totalAvailableApartments(view) > 0 ? 0.5 : 0.0,
         strategy_utils::hasBuiltSupermarket(view) ? 0.5 : 0.0);
+    */
+
+    const auto ads = strategy_utils::fitAdBudgets(view, config, 0.5, 0.5);
+
     std::vector<ConstructionOrder> orders;
+
     const int houses = strategy_utils::ownBuildingCount(view, BuildingType::House);
     const int markets = strategy_utils::ownBuildingCount(view, BuildingType::Supermarket);
     const bool preferHouse = houses <= markets;
+
     if (preferHouse) {
+
         const std::vector<HouseType> houseTypes = {
             HouseType::Panel, HouseType::Monolithic, HouseType::Brick
         };
+
         for (HouseType type : houseTypes) {
             if (strategy_utils::affordableNewBuildingCount(
                     view, config, BuildingType::House, type, ads) > 0) {
@@ -30,19 +39,21 @@ Decision BalancedPlayer::askDecision(const PublicView& view)
                 break;
             }
         }
+
         if (orders.empty()
             && strategy_utils::affordableNewBuildingCount(
                    view, config, BuildingType::Supermarket, HouseType::Panel, ads) > 0) {
             orders.push_back({BuildingType::Supermarket, HouseType::Panel, 1});
         }
     } else if (strategy_utils::affordableNewBuildingCount(
-                   view, config, BuildingType::Supermarket, HouseType::Panel, ads) > 0)
-{
+                   view, config, BuildingType::Supermarket, HouseType::Panel, ads) > 0) {
         orders.push_back({BuildingType::Supermarket, HouseType::Panel, 1});
     } else {
+
         const std::vector<HouseType> houseTypes = {
             HouseType::Panel, HouseType::Monolithic, HouseType::Brick
         };
+
         for (HouseType type : houseTypes) {
             if (strategy_utils::affordableNewBuildingCount(
                     view, config, BuildingType::House, type, ads) > 0) {
@@ -51,7 +62,9 @@ Decision BalancedPlayer::askDecision(const PublicView& view)
             }
         }
     }
+
     auto offers = strategy_utils::makeHousingOffers(view, config, 1.0);
+
     return Decision(getId(), view.getCurrentMonth(), std::move(orders),
                     std::move(offers), ads.housing, ads.supermarket);
 }
