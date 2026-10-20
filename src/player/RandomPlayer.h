@@ -1,6 +1,7 @@
 #pragma once
 #include <random>
 #include "Player.h"
+
 class RandomPlayer : public Player {
 public:
     RandomPlayer(int id, std::string name, const Config& config);

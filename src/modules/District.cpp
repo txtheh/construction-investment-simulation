@@ -1,5 +1,5 @@
 #include "District.h"
-#include "buildings.h"
+#include "../building/buildings.h"
 
 District::District(const std::vector<std::unique_ptr<Player>>& players,
                    double underConstructionWeight)

@@ -2,9 +2,10 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "buildings.h"
-#include "Decision.h"
-#include "config.h"
+
+#include "../building/buildings.h"
+#include "../interaction/Decision.h"
+#include "../config.h"
 class PublicView;
 class Player {
 public:

@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "Decision.h"
-#include "PublicView.h"
+#include "../interaction/Decision.h"
+#include "../view/PublicView.h"
 
 namespace strategy_utils {
 

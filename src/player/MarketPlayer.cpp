@@ -1,6 +1,7 @@
 #include "MarketPlayer.h"
-#include "PublicView.h"
-#include "StrategyUtils.h"
+#include "../view/PublicView.h"
+#include "../modules/StrategyUtils.h"
+
 #include <utility>
 #include <vector>
 

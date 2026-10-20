@@ -1,10 +1,12 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "District.h"
-#include "Player.h"
-#include "PublicView.h"
-#include "config.h"
+
+#include "../modules/District.h"
+#include "../player/Player.h"
+#include "../view/PublicView.h"
+#include "../config.h"
+
 class GameState {
 public:
     explicit GameState(const Config& config);

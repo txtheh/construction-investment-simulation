@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "config.h"
-#include "offer.h"
+#include "../config.h"
+#include "../interaction/offer.h"
 
 class District;
 

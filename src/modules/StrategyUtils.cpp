@@ -1,4 +1,5 @@
 #include "StrategyUtils.h"
+
 #include <algorithm>
 #include <cmath>
 

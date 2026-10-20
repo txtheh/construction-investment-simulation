@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "config.h"
+#include "../config.h"
 
 struct BuildingView {
     BuildingType buildingType = BuildingType::House;

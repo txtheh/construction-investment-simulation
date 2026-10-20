@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "config.h"
+#include "../config.h"
 
 HouseConfig getHouseConfig(const Config& config, HouseType type);
 bool isHouseConfigValid(const HouseConfig& houseConfig);

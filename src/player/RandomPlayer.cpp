@@ -1,6 +1,7 @@
 #include "RandomPlayer.h"
-#include "PublicView.h"
-#include "StrategyUtils.h"
+#include "../view/PublicView.h"
+#include "../modules/StrategyUtils.h"
+
 #include <algorithm>
 #include <utility>
 #include <vector>

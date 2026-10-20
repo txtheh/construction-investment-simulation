@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "config.h"
+#include "../config.h"
 #include "GameState.h"
-#include "Player.h"
-#include "RealtorAgency.h"
+#include "../player/Player.h"
+#include "../modules/RealtorAgency.h"
 
 struct PlayerResult {
     int playerId;

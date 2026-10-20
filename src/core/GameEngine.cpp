@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <utility>
 
-#include "buildings.h"
-#include "offer.h"
+#include "../building/buildings.h"
+#include "../interaction/offer.h"
 
 GameEngine::GameEngine(const Config& config)
     : config_(config),
