@@ -5,12 +5,14 @@
 
 #include "../config.h"
 
+// запрос на строительство
 struct ConstructionOrder {
     BuildingType buildingType;
     HouseType houseType;
     int count;
 };
 
+// запрос на продажу
 struct HousingOfferDecision {
     HouseType houseType;
     int apartments;
@@ -29,6 +31,7 @@ public:
 
     ~Decision();
 
+    // геттеры
     int getIdPlayer() const;
     int getMonth() const;
     std::string getTypeDecision() const;
@@ -39,6 +42,7 @@ public:
     double getHousingAdBudget() const;
     double getSupermarketAdBudget() const;
 
+    // сеттеры
     void setIdPlayer(int id);
     void setMonth(int month);
     void setTypeDecision(std::string decision);

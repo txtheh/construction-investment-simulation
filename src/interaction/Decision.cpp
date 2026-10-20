@@ -18,6 +18,7 @@ Decision::Decision(int id, int month,
 
 Decision::~Decision() = default;
 
+// геттеры
 int Decision::getIdPlayer() const
 {
     return idPlayer_;
@@ -53,6 +54,7 @@ double Decision::getSupermarketAdBudget() const
     return supermarketAdBudget_;
 }
 
+// сеттеры
 void Decision::setIdPlayer(int id)
 {
     idPlayer_ = id;
