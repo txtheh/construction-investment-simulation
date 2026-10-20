@@ -5,6 +5,7 @@
 
 #include "../config.h"
 
+// взгляд на дом
 struct BuildingView {
     BuildingType buildingType = BuildingType::House;
     bool hasHouseType = false;
@@ -17,12 +18,14 @@ struct BuildingView {
     double apartmentArea = 0.0;
 };
 
+// взгляд на игрока
 struct OpponentView {
     int playerId = -1;
     std::string name;
     std::vector<BuildingView> buildings;
 };
 
+// взгляд на сделку в истории
 struct SaleRecord {
     int month = 0;
     int playerId = -1;
@@ -31,6 +34,7 @@ struct SaleRecord {
     double pricePerSqm = 0.0;
 };
 
+// спрос на квартиры в месяце
 struct DemandRecord {
     int month = 0;
     HouseType houseType = HouseType::Panel;
@@ -49,6 +53,7 @@ public:
     void setHistory(const std::vector<SaleRecord>& salesHistory,
                     const std::vector<DemandRecord>& demandHistory);
 
+    // геттеры
     int getPlayerId() const;
     int getCurrentMonth() const;
     int getCalendarMonth() const;
