@@ -8,10 +8,13 @@ BuildingView GameState::makeBuildingView(const Building& building, bool detailed
     view.isBuilt = building.isBuilt();
     view.monthsBuilt = building.monthsBuilt();
     view.constructionMonths = building.constructionMonths();
+
     if (const auto* house = dynamic_cast<const House*>(&building)) {
+
         view.buildingType = BuildingType::House;
         view.hasHouseType = true;
         view.houseType = house->type();
+
         if (detailed) {
             view.apartments = house->apartments();
             view.soldApartments = house->sold();
@@ -20,6 +23,7 @@ BuildingView GameState::makeBuildingView(const Building& building, bool detailed
     } else if (dynamic_cast<const Supermarket*>(&building)) {
         view.buildingType = BuildingType::Supermarket;
     }
+
     return view;
 }
 
