@@ -4,6 +4,7 @@
 
 #include "../interaction/Decision.h"
 #include "../view/PublicView.h"
+#include "../config.h"
 
 namespace strategy_utils {
 
@@ -11,8 +12,6 @@ struct AdBudgets {
     double housing = 0.0;
     double supermarket = 0.0;
 };
-
-const HouseConfig& houseConfig(const Config& config, HouseType type);
 
 double monthlyPayment(const Config& config,
                       BuildingType buildingType, HouseType houseType);
