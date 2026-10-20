@@ -97,15 +97,21 @@ void Player::applyDecision(const Decision& decision)
 {
     const double housingAdBudget = decision.getHousingAdBudget();
     const double supermarketAdBudget = decision.getSupermarketAdBudget();
+
     addExpenses(housingAdBudget * 1000.0);
     addExpenses(supermarketAdBudget * 1000.0);
+
     const auto& orders = decision.getConstructionOrders();
+
     if (!orders.empty()) {
         for (const ConstructionOrder& order : orders) {
+
             if (order.count <= 0) {
                 continue;
             }
+
             for (int i = 0; i < order.count; ++i) {
+
                 if (order.buildingType == BuildingType::House) {
                     addHouseToQueue(order.houseType);
                 } else if (order.buildingType == BuildingType::Supermarket) {
@@ -114,7 +120,9 @@ void Player::applyDecision(const Decision& decision)
             }
         }
     } else {
+
         const std::string& type = decision.getTypeDecision();
+
         if (type == "panel") {
             addHouseToQueue(HouseType::Panel);
         } else if (type == "monolith") {
@@ -125,6 +133,7 @@ void Player::applyDecision(const Decision& decision)
             addSupermarketToQueue();
         }
     }
+
     housingAdBudget_ = housingAdBudget;
     supermarketAdBudget_ = supermarketAdBudget;
 }
@@ -132,23 +141,30 @@ void Player::applyDecision(const Decision& decision)
 void Player::advanceConstruction()
 {
     auto it = buildingQueue_.begin();
+
     while (it != buildingQueue_.end()) {
+
         Building* building = it->get();
+
         const double payment = building->nextPayment();
         const double tolerance = 8.0 * std::numeric_limits<double>::epsilon()
             * std::max({1.0, std::abs(capital_), std::abs(payment)});
+
         if (capital_ + tolerance < payment) {
             ++it;
             continue;
         }
+
         capital_ = std::max(0.0, capital_ - payment);
         building->advance();
+
         if (building->isBuilt()) {
             if (auto* house = dynamic_cast<House*>(building)) {
                 builtHouses_.push_back(*house);
             } else if (auto* supermarket = dynamic_cast<Supermarket*>(building)) {
                 builtSupermarkets_.push_back(*supermarket);
             }
+
             it = buildingQueue_.erase(it);
         } else {
             ++it;
@@ -191,7 +207,9 @@ int Player::sellApartments(HouseType type, int count)
 void Player::recalculateTotalCapital()
 {
     totalCapital_ = capital_;
+
     for (const auto& building : buildingQueue_) {
+
         if (const auto* house = dynamic_cast<const House*>(building.get())) {
             totalCapital_ += house->constructionValue();
         } else if (const auto* supermarket =
@@ -199,9 +217,11 @@ void Player::recalculateTotalCapital()
             totalCapital_ += supermarket->constructionValue();
         }
     }
+
     for (const House& house : builtHouses_) {
         totalCapital_ += house.housingValue();
     }
+
     for (const Supermarket& supermarket : builtSupermarkets_) {
         totalCapital_ += supermarket.marketValue(config_.supermarketCapitalMultiplier);
     }
