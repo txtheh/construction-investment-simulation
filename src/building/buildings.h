@@ -2,15 +2,11 @@
 #include <vector>
 #include "../config.h"
 
-HouseConfig getHouseConfig(const Config& config, HouseType type);
-bool isHouseConfigValid(const HouseConfig& houseConfig);
-bool isSupermarketConfigValid(const SupermarketConfig& supermarketConfig);
-bool isConfigValid(const Config& config);
-
 class Building {
 public:
     Building(double cost, int constructionMonths);
     virtual ~Building() = default;
+
     double cost() const;
     int constructionMonths() const;
     int monthsBuilt() const;
@@ -20,6 +16,7 @@ public:
     bool isBuilt() const;
     double monthlyPayment() const;
     double nextPayment() const;
+
     void advance();
 private:
     double costValue;
