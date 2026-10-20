@@ -10,6 +10,7 @@ public:
     District(const std::vector<std::unique_ptr<Player>>& players,
              double underConstructionWeight);
 
+    // геттеры
     int getBuiltHouseCount() const;
     int getUnderConstructionHouseCount() const;
     int getBuiltSupermarketCount() const;

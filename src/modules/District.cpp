@@ -6,15 +6,19 @@ District::District(const std::vector<std::unique_ptr<Player>>& players,
     : underConstructionWeight_(underConstructionWeight)
 {
     for (const auto& player : players) {
+
         if (!player) {
             continue;
         }
+
         builtHouseCount_ += static_cast<int>(player->getBuiltHouses().size());
         builtSupermarketCount_ += static_cast<int>(player->getBuiltSupermarkets().size());
+
         for (const auto& building : player->getBuildingQueue()) {
             if (!building || building->isBuilt()) {
                 continue;
             }
+
             if (dynamic_cast<const House*>(building.get())) {
                 ++underConstructionHouseCount_;
             } else if (dynamic_cast<const Supermarket*>(building.get())) {
@@ -24,6 +28,7 @@ District::District(const std::vector<std::unique_ptr<Player>>& players,
     }
 }
 
+// геттеры
 int District::getBuiltHouseCount() const
 {
     return builtHouseCount_;
