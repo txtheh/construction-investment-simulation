@@ -62,3 +62,9 @@ struct Config {
     double supermarketAdBonusPer500 = 0.03;
     double supermarketCapitalMultiplier = 1.6;
 };
+
+// валидация конфига
+HouseConfig getHouseConfig(const Config& config, HouseType type);
+bool isHouseConfigValid(const HouseConfig& houseConfig);
+bool isSupermarketConfigValid(const SupermarketConfig& supermarketConfig);
+bool isConfigValid(const Config& config);
