@@ -225,17 +225,6 @@ void CityMapWidget::drawBuilding(QPainter &painter, const QPointF &center,
                              QPointF(craneX + width * 0.27, craneTop + 12.0));
         }
 
-        if (shop && building.stage >= 1) {
-            const QRectF siteSign(center.x() - width * 0.36,
-                                  baseY - height * 0.76,
-                                  width * 0.43, qMax<qreal>(6.0, height * 0.30));
-            painter.setPen(QPen(QColor("#35434b"), 0.7));
-            painter.setBrush(QColor("#f4f0de"));
-            painter.drawRect(siteSign);
-            painter.setPen(QColor("#273743"));
-            painter.setFont(QFont("Arial", 5, QFont::Bold));
-            painter.drawText(siteSign, Qt::AlignCenter, QStringLiteral("МАГАЗИН"));
-        }
         return;
     }
 
@@ -301,19 +290,9 @@ void CityMapWidget::drawBuilding(QPainter &painter, const QPointF &center,
         painter.setBrush(QColor("#a8d5e2"));
         painter.drawPolygon(sideWindow);
 
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(QColor("#f4f0de"));
-        const QRectF sign(center.x() - width * 0.30,
-                          baseY - height * 0.74,
-                          width * 0.52, qMax<qreal>(5.0, height * 0.18));
-        painter.setPen(QPen(QColor("#35434b"), 0.6));
-        painter.setBrush(QColor("#f4f0de"));
-        painter.drawRect(sign);
-        painter.setPen(QColor("#273743"));
-        painter.setFont(QFont("Arial", qMax(5, qRound(tileWidth * 0.095)), QFont::Bold));
-        painter.drawText(sign, Qt::AlignCenter, QStringLiteral("МАГАЗИН"));
-    } else {
-        const int rows = office ? 5 : 3;
+    } else if (office) {
+        // Keep windows on office buildings, but not on residential high-rises.
+        const int rows = 5;
         for (int floor = 0; floor < rows; ++floor) {
             const qreal y = baseY - height * (floor + 0.55) / rows;
             for (int window = 0; window < 2; ++window) {

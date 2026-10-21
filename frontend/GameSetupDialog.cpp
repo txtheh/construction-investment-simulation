@@ -61,11 +61,10 @@ GameSetupDialog::GameSetupDialog(QWidget *parent)
     botCount_ = new QSpinBox(this);
     botCount_->setRange(2, 5);
     botCount_->setValue(4);
-    months_ = new QComboBox(this);
-    months_->addItem(QStringLiteral("6 месяцев"), 6);
-    months_->addItem(QStringLiteral("12 месяцев"), 12);
-    months_->addItem(QStringLiteral("24 месяца"), 24);
-    months_->setCurrentIndex(1);
+    months_ = new QSpinBox(this);
+    months_->setRange(6, 24);
+    months_->setValue(12);
+    months_->setSuffix(QStringLiteral(" месяцев"));
     form->addRow(QStringLiteral("Количество ботов"), botCount_);
     form->addRow(QStringLiteral("Длительность"), months_);
     root->addLayout(form);
@@ -152,5 +151,5 @@ QVector<BotSetup> GameSetupDialog::botSetups() const {
 }
 
 int GameSetupDialog::gameMonths() const {
-    return months_->currentData().toInt();
+    return months_->value();
 }
