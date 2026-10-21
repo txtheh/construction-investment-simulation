@@ -8,6 +8,7 @@
 #include "GameState.h"
 #include "../player/Player.h"
 #include "../modules/RealtorAgency.h"
+#include "../modules/RulesValidator.h"
 
 struct PlayerResult {
     int playerId;
@@ -23,7 +24,6 @@ public:
     void addPlayer(std::unique_ptr<Player> player);
     void startGame();
 
-    // Returns false when the game has already finished.
     bool advanceMonth();
     void runToEnd();
 

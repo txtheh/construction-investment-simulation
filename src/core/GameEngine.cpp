@@ -42,7 +42,6 @@ void GameEngine::startGame()
     pendingHousingRevenue_.assign(players.size(), 0.0);
     pendingSupermarketProfit_.assign(players.size(), 0.0);
 
-    // Collect every starting decision before applying any of them.
     std::vector<PublicView> views;
 
     for (const auto& player : players) {
@@ -50,35 +49,43 @@ void GameEngine::startGame()
     }
 
     std::vector<Decision> decisions;
-
     for (std::size_t i = 0; i < players.size(); ++i) {
         decisions.push_back(players[i]->askDecision(views[i]));
     }
+    
+    RulesValidator validator(config_);
+    for (std::size_t i = 0; i < players.size(); ++i) {
+        decisions[i] = validator.validate(decisions[i], views[i]);
+    }
 
-    // The starting phase accepts construction orders only.
-    // RulesValidator will be connected here when that module is implemented.
     for (std::size_t i = 0; i < players.size(); ++i) {
         const Decision& decision = decisions[i];
         const auto& orders = decision.getConstructionOrders();
 
         if (!orders.empty()) {
+            
             Decision startingDecision(
                 players[i]->getId(), 0, orders,
                 std::vector<HousingOfferDecision>(), 0.0, 0.0
             );
+
             players[i]->applyDecision(startingDecision);
         } else if (!decision.getTypeDecision().empty()) {
+
             Decision startingDecision(
                 players[i]->getId(), 0,
                 decision.getTypeDecision(), 0.0, 0.0
             );
+
             players[i]->applyDecision(startingDecision);
         } else {
+
             Decision startingDecision(
                 players[i]->getId(), 0,
                 std::vector<ConstructionOrder>(),
                 std::vector<HousingOfferDecision>(), 0.0, 0.0
             );
+
             players[i]->applyDecision(startingDecision);
         }
     }
@@ -102,21 +109,16 @@ bool GameEngine::advanceMonth()
 
     auto& players = state_.getPlayers();
 
-    // 1. Pay construction costs. A building pauses if its owner cannot pay.
     for (const auto& player : players) {
         player->advanceConstruction();
     }
 
-    // 2-3. Credit income earned during the previous month.
     payPendingIncome();
 
-    // Calculate the district before applying this month's decisions.
-    // New construction starts progressing next month.
     const District district = state_.getDistrict();
     const std::vector<HousingDemand> demands =
         realtorAgency_.calculateDemands(state_.getCalendarMonth(), district);
 
-    // Every player sees the same state and submits a decision independently.
     std::vector<PublicView> views;
 
     for (const auto& player : players) {
@@ -129,8 +131,11 @@ bool GameEngine::advanceMonth()
         decisions.push_back(players[i]->askDecision(views[i]));
     }
 
-    // TODO: Send decisions through RulesValidator when its interface is ready.
-    // Apply them only after every player has submitted a decision.
+    RulesValidator validator(config_);
+    for (std::size_t i = 0; i < players.size(); ++i) {
+        decisions[i] = validator.validate(decisions[i], views[i]);
+    }
+
     for (std::size_t i = 0; i < players.size(); ++i) {
         players[i]->applyDecision(decisions[i]);
     }
@@ -155,7 +160,6 @@ bool GameEngine::advanceMonth()
         }
     }
 
-    // 4-7. Distribute this month's housing demand.
     const std::vector<HousingSale> sales =
         realtorAgency_.distributeSales(demands, offers);
 
@@ -175,6 +179,7 @@ bool GameEngine::advanceMonth()
 
         const std::size_t playerIndex = static_cast<std::size_t>(sale.playerIndex);
         Player* player = players[playerIndex].get();
+
         const int soldApartments =
             player->sellApartments(sale.houseType, sale.apartmentsSold);
 
@@ -197,12 +202,11 @@ bool GameEngine::advanceMonth()
         });
     }
 
-    // Profit earned this month is credited at the start of the next month.
     calculatePendingSupermarketProfit(district);
     updateTotalCapital();
 
     if (month == config_.gameMonths) {
-        // Sales from the final month must still count toward final cash.
+
         for (std::size_t i = 0; i < players.size(); ++i) {
             players[i]->addCapital(pendingHousingRevenue_[i]);
             pendingHousingRevenue_[i] = 0.0;
