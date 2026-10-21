@@ -62,10 +62,19 @@ GameSetupDialog::GameSetupDialog(QWidget *parent)
     botCount_->setRange(2, 5);
     botCount_->setValue(4);
     months_ = new QComboBox(this);
-    months_->addItem(QStringLiteral("6 месяцев"), 6);
-    months_->addItem(QStringLiteral("12 месяцев"), 12);
-    months_->addItem(QStringLiteral("24 месяца"), 24);
-    months_->setCurrentIndex(1);
+    for (int month = 6; month <= 24; ++month) {
+        QString label;
+        if (month % 10 == 1 && month % 100 != 11) {
+            label = QStringLiteral("%1 месяц").arg(month);
+        } else if (month % 10 >= 2 && month % 10 <= 4
+                   && (month % 100 < 12 || month % 100 > 14)) {
+            label = QStringLiteral("%1 месяца").arg(month);
+        } else {
+            label = QStringLiteral("%1 месяцев").arg(month);
+        }
+        months_->addItem(label, month);
+    }
+    months_->setCurrentIndex(6);
     form->addRow(QStringLiteral("Количество ботов"), botCount_);
     form->addRow(QStringLiteral("Длительность"), months_);
     root->addLayout(form);
