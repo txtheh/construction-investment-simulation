@@ -1,0 +1,640 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+  \setmainfont[]{DejaVu Serif}
+  \setsansfont[]{DejaVu Sans}
+  \setmonofont[]{DejaVu Sans Mono}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{russian}
+\ifPDFTeX
+\else
+\babelfont{rm}[]{DejaVu Serif}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdflang={ru-RU},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\section{1. Общая
+идея}\label{ux43eux431ux449ux430ux44f-ux438ux434ux435ux44f}
+
+Программа делится на независимые модули, каждый отвечает за одну задачу.
+Задание требует:
+
+\begin{itemize}
+\tightlist
+\item
+  модуль управления ходом моделирования;
+\item
+  модуль контроля соблюдения правил;
+\item
+  модуль риэлторского агентства;
+\item
+  несколько модулей-игроков с разными стратегиями.
+\end{itemize}
+
+Кроме них есть настройки игры, состояние игры и интерфейс.
+
+\section{2. Что требует задание и где это
+реализовано}\label{ux447ux442ux43e-ux442ux440ux435ux431ux443ux435ux442-ux437ux430ux434ux430ux43dux438ux435-ux438-ux433ux434ux435-ux44dux442ux43e-ux440ux435ux430ux43bux438ux437ux43eux432ux430ux43dux43e}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Требование задания
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Где реализовано
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Игра на 2--5 игроков, 6--24 месяца & \texttt{Config}, проверка при
+создании игры в \texttt{GameEngine} \\
+В начале игры игроки решают, куда вложить деньги & начальная фаза
+(раздел 5.1) \\
+Игроки-люди и игроки-программы & \texttt{Player}: \texttt{HumanPlayer} и
+программные стратегии \\
+Управление ходом моделирования & \texttt{GameEngine} \\
+Контроль соблюдения правил & \texttt{RulesValidator} \\
+Риэлторское агентство & \texttt{RealtorAgency} \\
+Несколько стратегий игры & \texttt{BuilderPlayer},
+\texttt{MarketPlayer}, \texttt{BalancedPlayer} \\
+Разные типы домов и супермаркеты, изменяемые стоимость и сроки &
+\texttt{Building}, \texttt{House}, \texttt{Supermarket},
+\texttt{Config} \\
+Равномерные затраты на стройку & \texttt{GameEngine}, шаг 1 месяца \\
+Сезонный спрос и продажи, влияние супермаркетов и домов &
+\texttt{District}, формулы \texttt{math-model.md} (разделы 3 и 9) \\
+Реклама жилья и супермаркетов & \texttt{Decision}, \texttt{GameEngine},
+\texttt{RealtorAgency} \\
+Подсчёт капитала и победитель & \texttt{GameEngine}, раздел 6 \\
+Информация о чужих объектах и продажах & \texttt{PublicView} \\
+\end{longtable}
+
+\section{3. Модули}\label{ux43cux43eux434ux443ux43bux438}
+
+\subsection{3.1. GameEngine --- координатор
+моделирования}\label{gameengine-ux43aux43eux43eux440ux434ux438ux43dux430ux442ux43eux440-ux43cux43eux434ux435ux43bux438ux440ux43eux432ux430ux43dux438ux44f}
+
+\textbf{Задача:} координировать ход игры. Сам он не содержит всей
+математики: он вызывает игроков, \texttt{RulesValidator} и
+\texttt{RealtorAgency} в нужном порядке и применяет их результаты к
+состоянию.
+
+\begin{itemize}
+\tightlist
+\item
+  создаёт игру по настройкам (\(N\), \(M\), стартовый капитал) и
+  проверяет допустимость \(N\) и \(M\);
+\item
+  проводит начальную фазу и затем каждый месяц (раздел 5);
+\item
+  списывает ежемесячные платежи за стройку, продвигает стройки,
+  начисляет выручку и прибыль;
+\item
+  \textbf{замораживает стройку на месяц}, если на её платёж не хватает
+  денег (платёж не списывается, срок сдвигается на месяц). Это
+  автоматическое следствие, а не проверка решения игрока;
+\item
+  считает капитал (раздел 6) и после месяца \(M\) определяет победителя.
+\end{itemize}
+
+\subsection{3.2. RulesValidator --- контроль
+правил}\label{rulesvalidator-ux43aux43eux43dux442ux440ux43eux43bux44c-ux43fux440ux430ux432ux438ux43b}
+
+\textbf{Задача:} проверять \textbf{решения игроков} до того, как они
+попадут в игру.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Проверка
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Что происходит при нарушении
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Денег на рекламу не хватает & реклама уменьшается до допустимой или
+отклоняется \\
+Денег на платежи за новые стройки в следующем месяце не хватает & новая
+стройка не принимается \\
+Выставлено на продажу больше, чем доступно & объём обрезается до
+доступного \\
+Цена или объём не положительны & предложение отклоняется \\
+\textbf{Цена выше предельной} & предложение отклоняется сразу, игроку
+сообщается причина \\
+Реклама супермаркетов без построенного супермаркета & реклама
+отклоняется \\
+Решение подано не вовремя или повторно & отклоняется \\
+\end{longtable}
+
+Как проверяется стройка. Первый платёж за новую стройку списывается в
+шаге 1 \textbf{следующего} месяца, до поступления выручки. Поэтому
+валидатор проверяет, что денег, оставшихся после рекламы этого месяца,
+хватит на все платежи за стройки в следующем месяце (старые и новые).
+Недостаток денег на \textbf{уже идущую} стройку --- не нарушение правил
+игроком, это случай заморозки (см. \texttt{GameEngine}).
+
+\subsection{3.3. RealtorAgency --- риэлторское
+агентство}\label{realtoragency-ux440ux438ux44dux43bux442ux43eux440ux441ux43aux43eux435-ux430ux433ux435ux43dux442ux441ux442ux432ux43e}
+
+\textbf{Задача:} распределить спрос между предложениями игроков по
+правилам \texttt{math-model.md} (раздел 6, рис. 4).
+
+\textbf{Спрос по типам домов.} Для каждого типа дома (панельный,
+монолитный, кирпичный) спрос считается \textbf{отдельно}
+(\texttt{math-model.md}, раздел 3): общий спрос на все типы вместе в три
+раза больше базового. Агентство обрабатывает каждый тип независимо.
+
+Алгоритм для одного типа дома:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  взять спрос \(D\) на этот тип и список предложений (игрок, количество
+  квартир, цена за кв. м, рекламный бонус);
+\item
+  отсортировать предложения по цене от низкой к высокой;
+\item
+  по очереди удовлетворять спрос: каждый игрок получает
+  \(\min(\text{его предложение}, \text{остаток спроса})\); при равных
+  ценах остаток делится пропорционально предложению;
+\item
+  \textbf{реклама.} После распределения проданное количество каждого
+  игрока умножается на \((1 + b)\), где \(b\) --- рекламный бонус
+  игрока, но не больше его предложения. Дополнительные продажи за счёт
+  рекламы \textbf{не отнимаются у других игроков}: допущение модели ---
+  реклама привлекает покупателей сверх базового спроса. Поэтому
+  суммарные продажи могут немного превысить \(D\);
+\item
+  вернуть количество проданных квартир каждого игрока.
+\end{enumerate}
+
+Агентство ничего не знает ни о деньгах, ни о правилах: получает данные и
+возвращает результат, поэтому его легко проверять отдельно. Предложения
+с недопустимой ценой до него не доходят (их отклоняет
+\texttt{RulesValidator}).
+
+\subsection{3.4. Player ---
+игроки}\label{player-ux438ux433ux440ux43eux43aux438}
+
+\textbf{Задача:} в начале месяца принять решения. \texttt{Player} ---
+базовый класс: он хранит данные игрока (имя, деньги, объекты, рекламный
+бонус прошлого месяца) и объявляет метод принятия решения. Конкретные
+стратегии наследуют его и реализуют метод по-своему. Все игроки
+(программные и человек) получают \texttt{PublicView} и возвращают
+\texttt{Decision}.
+
+\texttt{Decision} содержит: - какие объекты начать строить (тип и
+количество); - сколько квартир выставить на продажу и по какой цене за
+кв. м (по типам домов); - сколько потратить на рекламу жилья; - сколько
+потратить на рекламу товаров в супермаркетах (\textbf{общий бюджет
+игрока} на все его супермаркеты: надбавка к прибыли применяется к
+каждому его супермаркету, бюджет не делится).
+
+\subsection{3.5. Config ---
+настройки}\label{config-ux43dux430ux441ux442ux440ux43eux439ux43aux438}
+
+Все числа хранятся в одном месте:
+
+\begin{itemize}
+\tightlist
+\item
+  \(N\), \(M\), стартовый капитал, месяц старта;
+\item
+  стоимость, срок, число квартир и площадь по типам домов; стоимость и
+  срок супермаркета;
+\item
+  сезонные коэффициенты спроса и продаж, базовый спрос (на каждый тип
+  дома) и базовая прибыль \textbf{одного} супермаркета (фиксированная
+  сумма);
+\item
+  коэффициенты влияния (рост спроса от супермаркета, рост продаж от
+  дома, вес строящегося объекта);
+\item
+  предельная цена и «справедливая» цена; правило ничьей;
+\item
+  расширение: включение задержек строительства и их вероятность.
+\end{itemize}
+
+\subsection{3.6. GameState и
+PublicView}\label{gamestate-ux438-publicview}
+
+\texttt{GameState} хранит всё состояние: игроков, объекты, историю
+продаж и спроса.
+
+\textbf{Одновременность.} Все игроки получают одинаковый
+\texttt{PublicView}, составленный на начало месяца, и принимают решения
+независимо друг от друга. Решения обрабатываются только после того, как
+собраны от всех. Порядок игроков не влияет на результат.
+
+\texttt{PublicView} содержит: - текущий месяц и календарный месяц; -
+свои деньги, объекты и рекламный бонус; - по каждому другому игроку:
+объекты (тип, готов или строится, сколько месяцев строится из \(T\)); -
+историю продаж по всем игрокам за все прошедшие месяцы: игрок, тип дома,
+количество проданных квартир, цена за кв. м; - историю спроса по типам
+домов.
+
+Деньги соперников не показываются.
+
+\subsection{3.7.
+Интерфейс}\label{ux438ux43dux442ux435ux440ux444ux435ux439ux441}
+
+Показывает игроку-человеку \texttt{PublicView} и принимает его решение;
+в конце показывает таблицу итогов (рис. 5). Для программных игроков
+интерфейс не нужен: они работают напрямую, что удобно для быстрых
+автоматических партий.
+
+\textbf{Если решение человека нарушает правила.} Валидатор возвращает
+причину, игроку даётся до 3 попыток исправить. После этого недопустимые
+части решения отбрасываются (допустимые остаются, объёмы обрезаются до
+допустимых).
+
+\section{4. Данные}\label{ux434ux430ux43dux43dux44bux435}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Класс
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Что хранит
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{Building} & тип, стоимость, срок, сколько месяцев строится,
+владелец \\
+\texttt{House} & как \texttt{Building}, плюс число квартир, площадь
+квартиры, сколько продано \\
+\texttt{Supermarket} & как \texttt{Building}, плюс признак «построен» \\
+\texttt{Offer} & игрок, тип дома, количество квартир, цена за кв. м,
+рекламный бонус \\
+\texttt{Decision} & решения игрока за месяц \\
+\texttt{District} & собирает данные по \textbf{всем} игрокам: число
+готовых супермаркетов, строящихся супермаркетов, готовых домов,
+строящихся домов. Нужен для формул спроса и прибыли супермаркетов (\(S\)
+и \(H\) в \texttt{math-model.md}) \\
+\texttt{Config} & настройки \\
+\end{longtable}
+
+Данные игрока (имя, деньги, объекты) хранятся в базовом классе
+\texttt{Player}. Диаграмма классов --- на рис. 2.
+
+\section{5. Ход игры}\label{ux445ux43eux434-ux438ux433ux440ux44b}
+
+\subsection{5.1. Начальная фаза (до месяца
+1)}\label{ux43dux430ux447ux430ux43bux44cux43dux430ux44f-ux444ux430ux437ux430-ux434ux43e-ux43cux435ux441ux44fux446ux430-1}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  каждый игрок получает стартовый капитал;
+\item
+  каждый игрок получает \texttt{PublicView} и возвращает
+  \texttt{Decision}, в котором учитываются только \textbf{стартовые
+  стройки} (продажи и реклама ещё невозможны);
+\item
+  \texttt{RulesValidator} проверяет, что денег хватит на платежи за эти
+  стройки в месяце 1;
+\item
+  стройки создаются; их первые платежи списываются в шаге 1 месяца 1.
+\end{enumerate}
+
+\subsection{5.2. Один
+месяц}\label{ux43eux434ux438ux43d-ux43cux435ux441ux44fux446}
+
+\texttt{GameEngine} выполняет шаги в том же порядке, что и в
+\texttt{math-model.md} (раздел 13, рис. 3):
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  списываются затраты на строительство (по всем идущим стройкам;
+  нехватка денег замораживает стройку);
+\item
+  зачисляется выручка от продаж жилья прошлого месяца;
+\item
+  зачисляется прибыль супермаркетов;
+\item
+  игроки получают \texttt{PublicView} и \textbf{одновременно} возвращают
+  \texttt{Decision}: новые стройки, предложение жилья, цены, реклама;
+\item
+  \texttt{RulesValidator} проверяет решения и исправляет недопустимое;
+\item
+  после проверки снимаются деньги за рекламу жилья и супермаркетов
+  (поэтому баланс не уходит в минус);
+\item
+  \texttt{RealtorAgency} распределяет спрос и возвращает продажи;
+\item
+  обновляются объекты (прогресс стройки, проданные квартиры) и капитал
+  игроков.
+\end{enumerate}
+
+\textbf{Новые стройки.} Решение начать стройку принимается в шаге 4
+месяца \(t\). Её первый платёж списывается в шаге 1 месяца \(t+1\) и с
+этого месяца она продвигается.
+
+\subsection{5.3.
+Псевдокод}\label{ux43fux441ux435ux432ux434ux43eux43aux43eux434}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Setup:}
+\NormalTok{    для каждого игрока: Decision = игрок.decide(PublicView)   \# только стройки}
+\NormalTok{    проверить, создать стройки}
+
+\NormalTok{для t = 1..M:}
+\NormalTok{    списать платежи за стройки (нет денег {-}\textgreater{} заморозить стройку)}
+\NormalTok{    зачислить выручку прошлого месяца}
+\NormalTok{    зачислить прибыль супермаркетов}
+\NormalTok{    view = PublicView(на начало месяца)}
+\NormalTok{    для каждого игрока: Decision[i] = игрок[i].decide(view)     \# независимо}
+\NormalTok{    для каждого игрока: Decision[i] = RulesValidator.check(Decision[i])}
+\NormalTok{    списать рекламу}
+\NormalTok{    для каждого типа дома j:}
+\NormalTok{        продажи[j] = RealtorAgency.distribute(спрос[j], предложения[j])}
+\NormalTok{    обновить объекты, продажи, капитал}
+
+\NormalTok{зачислить выручку месяца M}
+\NormalTok{победитель = игрок с максимальным капиталом (ничья возможна)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{6. Расчёт
+капитала}\label{ux440ux430ux441ux447ux451ux442-ux43aux430ux43fux438ux442ux430ux43bux430}
+
+Капитал считается по \texttt{math-model.md} (разделы 10--11):
+\(K = C_{\text{construction}} + C_{\text{housing}} + C_{\text{markets}} + Cash\).
+
+\begin{itemize}
+\tightlist
+\item
+  \(C_{\text{construction}}\) --- только \textbf{незавершённые} объекты
+  (и дома, и супермаркеты): потраченная на них сумма;
+\item
+  \(C_{\text{housing}}\) --- только \textbf{непроданное жильё в
+  построенных домах} по себестоимости кв. м;
+\item
+  \(C_{\text{markets}}\) --- только \textbf{построенные супермаркеты}:
+  \(1{,}6 \cdot C_{\text{spent}}\);
+\item
+  \(Cash\) --- деньги игрока.
+\end{itemize}
+
+\textbf{Двойной учёт.} Каждый объект входит ровно в одну составляющую,
+проданное жильё --- только в \(Cash\). Если часть квартир продана в ещё
+строящемся доме, её себестоимость вычитается из стоимости этого
+строящегося дома.
+
+\textbf{Выручка последнего месяца.} Выручка за месяц \(M\) обязательно
+зачисляется в \(Cash\) перед подсчётом итогов. Капитал включает деньги
+от всех продаж.
+
+\section{7.
+Игроки-стратегии}\label{ux438ux433ux440ux43eux43aux438-ux441ux442ux440ux430ux442ux435ux433ux438ux438}
+
+Игроки реализуют один общий базовый класс и различаются логикой решений:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Игрок
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Идея
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{BuilderPlayer} («застройщик») & основные деньги вкладывает в
+дома, цену держит близко к справедливой, чтобы продавать первым \\
+\texttt{MarketPlayer} («торговец») & строит много супермаркетов,
+получает рост стоимости ×1,6, тратит на рекламу товаров \\
+\texttt{BalancedPlayer} («сбалансированный») & сочетает дома и
+супермаркеты, вложения делает по мере поступления выручки \\
+\texttt{HumanPlayer} & решения вводит человек \\
+\end{longtable}
+
+Перед стартом для каждого места выбирается стратегия, у разных игроков
+они могут быть разными (в том числе одинаковыми). Новую стратегию можно
+добавить, не меняя остальные модули.
+
+\section{8. Опциональное расширение: задержки
+строительства}\label{ux43eux43fux446ux438ux43eux43dux430ux43bux44cux43dux43eux435-ux440ux430ux441ux448ux438ux440ux435ux43dux438ux435-ux437ux430ux434ux435ux440ux436ux43aux438-ux441ux442ux440ux43eux438ux442ux435ux43bux44cux441ux442ux432ux430}
+
+Расширение модели, по умолчанию выключено; в базовой математической
+модели (\texttt{math-model.md}) не используется. Если включено в
+\texttt{Config}, \texttt{GameEngine} при обновлении стройки с
+вероятностью \(p\) не продвигает объект на месяц (платёж за этот месяц
+не списывается, срок сдвигается на месяц). Остальные модули не меняются.
+
+\section{9. Допущения и
+упрощения}\label{ux434ux43eux43fux443ux449ux435ux43dux438ux44f-ux438-ux443ux43fux440ux43eux449ux435ux43dux438ux44f}
+
+\begin{itemize}
+\tightlist
+\item
+  спрос и предложение измеряются в \textbf{квартирах}; деньги получаются
+  умножением на площадь квартиры и цену за кв. м;
+\item
+  спрос считается отдельно для каждого типа дома;
+\item
+  реклама жилья увеличивает проданный объём игрока и не отнимает продажи
+  у других;
+\item
+  рекламный бюджет супермаркетов --- общий на все супермаркеты игрока,
+  надбавка применяется к каждому из них;
+\item
+  базовая прибыль супермаркета --- фиксированная сумма на один
+  супермаркет;
+\item
+  сезонность определяется календарным месяцем, игра начинается с марта;
+\item
+  новая стройка начинает списывать платежи со следующего месяца после
+  решения;
+\item
+  нехватка денег на платёж замораживает стройку на месяц;
+\item
+  все решения месяца принимаются одновременно;
+\item
+  все числовые коэффициенты --- модель по умолчанию из
+  \texttt{math-model.md} (раздел 14), не заданная в ТЗ.
+\end{itemize}
+
+\section{10. Структура
+проекта}\label{ux441ux442ux440ux443ux43aux442ux443ux440ux430-ux43fux440ux43eux435ux43aux442ux430}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{project/}
+\NormalTok{  config/          настройки и значения по умолчанию}
+\NormalTok{  engine/          GameEngine, GameState, PublicView}
+\NormalTok{  rules/           RulesValidator}
+\NormalTok{  agency/          RealtorAgency}
+\NormalTok{  model/           Building, House, Supermarket, Offer, Decision, District}
+\NormalTok{  players/         Player, BuilderPlayer, MarketPlayer, BalancedPlayer, HumanPlayer}
+\NormalTok{  ui/              интерфейс}
+\NormalTok{  tests/           проверки}
+\NormalTok{  docs/}
+\NormalTok{    idea.md, task.md, math{-}model.md, architecture.md, images.md}
+\NormalTok{    images/        готовые картинки схем}
+\end{Highlighting}
+\end{Shaded}
+
+\section{11. Проверка
+работы}\label{ux43fux440ux43eux432ux435ux440ux43aux430-ux440ux430ux431ux43eux442ux44b}
+
+\begin{itemize}
+\tightlist
+\item
+  полная партия из программных игроков для разных \(N\) и \(M\): игра
+  заканчивается, победитель определён;
+\item
+  агентство на примере из \texttt{math-model.md} (спрос 100, предложения
+  60 и 70 → продажи 60 и 40);
+\item
+  правила: подать неверные решения (нет денег, слишком большой объём,
+  цена выше предельной, реклама без супермаркета) и убедиться, что
+  \texttt{RulesValidator} их отклоняет;
+\item
+  начальная фаза: стартовые стройки создаются, платежи списываются в
+  месяце 1;
+\item
+  заморозка: при нехватке денег стройка не продвигается;
+\item
+  капитал: проданное жильё не учитывается дважды, выручка последнего
+  месяца учтена;
+\item
+  результаты разных стратегий (для оценки баланса можно использовать
+  скрипт \texttt{balance\_sim.py}, если он включён в проект).
+\end{itemize}
+
+\end{document}
