@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../config.h"
-#include "PublicView.h"
+#include "../view/PublicView.h"
 #include "../interaction/Decision.h"
 
 class RulesValidator {
@@ -13,4 +13,4 @@ public:
 
 private:
     Config config_;
-}
+};

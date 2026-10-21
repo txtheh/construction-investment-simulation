@@ -36,6 +36,7 @@ Decision RulesValidator::validate(const Decision& decision,
     }
 
     const double actualAdsCost = (housingAds + marketAds) * 1000.0;
+    double availableForNew = view.getCash() - actualAdsCost - existingPayments;
 
     std::vector<ConstructionOrder> validOrders;
 

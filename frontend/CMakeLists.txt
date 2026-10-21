@@ -23,7 +23,11 @@ qt_add_executable(MegapolisFrontend
     ResultsDialog.cpp
 )
 
-target_link_libraries(MegapolisFrontend PRIVATE Qt6::Widgets)
+target_link_libraries(MegapolisFrontend PRIVATE 
+    Qt6::Widgets
+    backend
+)
+
 set_target_properties(MegapolisFrontend PROPERTIES MACOSX_BUNDLE TRUE)
 
 target_compile_options(MegapolisFrontend PRIVATE
