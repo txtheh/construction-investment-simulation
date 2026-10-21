@@ -290,9 +290,9 @@ void CityMapWidget::drawBuilding(QPainter &painter, const QPointF &center,
         painter.setBrush(QColor("#a8d5e2"));
         painter.drawPolygon(sideWindow);
 
-    } else {
-        // House windows are intentionally drawn only after the building is complete.
-        const int rows = office ? 5 : 3;
+    } else if (office) {
+        // Keep windows on office buildings, but not on residential high-rises.
+        const int rows = 5;
         for (int floor = 0; floor < rows; ++floor) {
             const qreal y = baseY - height * (floor + 0.55) / rows;
             for (int window = 0; window < 2; ++window) {
