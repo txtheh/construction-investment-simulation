@@ -1,0 +1,171 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+  \setmainfont[]{DejaVu Serif}
+  \setsansfont[]{DejaVu Sans}
+  \setmonofont[]{DejaVu Sans Mono}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=0.7in]{geometry}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{russian}
+\ifPDFTeX
+\else
+\babelfont{rm}[]{DejaVu Serif}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdflang={ru-RU},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\section{1. Идея и цель
+проекта}\label{ux438ux434ux435ux44f-ux438-ux446ux435ux43bux44c-ux43fux440ux43eux435ux43aux442ux430}
+
+\subsection{Идея
+проекта}\label{ux438ux434ux435ux44f-ux43fux440ux43eux435ux43aux442ux430}
+
+Проект представляет собой программную игру-симуляцию, в которой
+несколько игроков управляют инвестиционным капиталом и принимают решения
+о вложении денег в строительство жилых домов и супермаркетов.
+
+Игроки развивают объекты в одном микрорайоне и конкурируют между собой
+за получение максимальной прибыли. На результат игры влияют стоимость и
+сроки строительства, спрос на жильё, продажи в супермаркетах, цены на
+жильё и затраты на рекламу.
+
+Каждый шаг игры соответствует одному месяцу. В течение игры игроки
+должны распределять имеющийся капитал между различными объектами и
+принимать решения, влияющие на их дальнейший доход.
+
+\subsection{Цель
+проекта}\label{ux446ux435ux43bux44c-ux43fux440ux43eux435ux43aux442ux430}
+
+Цель проекта --- разработать игровую программную систему, моделирующую
+процесс инвестирования в строительство и позволяющую игрокам принимать
+экономические решения в условиях изменяющегося спроса и ограниченного
+капитала.
+
+Победителем становится игрок, который к концу установленного количества
+игровых месяцев имеет наибольший общий капитал.
+
+\subsection{Основная идея игрового
+процесса}\label{ux43eux441ux43dux43eux432ux43dux430ux44f-ux438ux434ux435ux44f-ux438ux433ux440ux43eux432ux43eux433ux43e-ux43fux440ux43eux446ux435ux441ux441ux430}
+
+В начале игры каждый игрок получает одинаковый начальный капитал. Затем
+игроки выбирают, в какие объекты и в каком количестве инвестировать
+средства.
+
+В игре предусмотрены два основных типа объектов:
+
+\begin{itemize}
+\tightlist
+\item
+  жилые дома;
+\item
+  супермаркеты.
+\end{itemize}
+
+Строительство объектов требует определённых затрат и занимает несколько
+месяцев. При этом строительство объектов одного типа может влиять на
+эффективность объектов другого типа: дополнительные супермаркеты могут
+повышать спрос на расположенное рядом жильё, а дополнительные дома могут
+увеличивать уровень продаж в соседних супермаркетах.
+
+Кроме строительства, игроки принимают решения о продаже жилья, его цене
+и затратах на рекламу.
+
+\subsection{Основные участники
+системы}\label{ux43eux441ux43dux43eux432ux43dux44bux435-ux443ux447ux430ux441ux442ux43dux438ux43aux438-ux441ux438ux441ux442ux435ux43cux44b}
+
+В проекте выделяются следующие основные элементы:
+
+\begin{itemize}
+\tightlist
+\item
+  игроки
+\item
+  строительные объекты
+\item
+  рынок жилья
+\item
+  риэлторское агентство
+\item
+  супермаркеты
+\item
+  игровая система, управляющая ходом моделирования
+\end{itemize}
+
+Риэлторское агентство обеспечивает продажу выставленного игроками жилья
+и распределяет удовлетворяемый спрос в зависимости от заявленной цены,
+рекламы и других факторов.
+
+\subsection{Конечный
+результат}\label{ux43aux43eux43dux435ux447ux43dux44bux439-ux440ux435ux437ux443ux43bux44cux442ux430ux442}
+
+Игра продолжается заданное количество месяцев. После завершения игры
+рассчитывается общий капитал каждого игрока, включающий стоимость его
+объектов и выручку от продаж.
+
+Победителем считается игрок, обладающий наибольшим общим капиталом.
+
+\end{document}

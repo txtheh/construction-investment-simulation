@@ -1,0 +1,845 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+  \setmainfont[]{DejaVu Serif}
+  \setsansfont[]{DejaVu Sans}
+  \setmonofont[]{DejaVu Sans Mono}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{russian}
+\ifPDFTeX
+\else
+\babelfont{rm}[]{DejaVu Serif}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdflang={ru-RU},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\section{1. Основные
+параметры}\label{ux43eux441ux43dux43eux432ux43dux44bux435-ux43fux430ux440ux430ux43cux435ux442ux440ux44b}
+
+Пусть:
+
+\begin{itemize}
+\tightlist
+\item
+  \(N\) --- количество игроков
+\item
+  \(M\) --- количество игровых месяцев
+\item
+  \(K_0\) --- начальный капитал игрока (по умолчанию 37 млн у.е.)
+\item
+  \(C\) --- полная стоимость строительства объекта
+\item
+  \(T\) --- срок строительства объекта в месяцах
+\end{itemize}
+
+Каждый шаг моделирования соответствует одному месяцу. Игра стартует в
+марте (допущение, см. раздел 14).
+
+\subsection{Параметры
+объектов}\label{ux43fux430ux440ux430ux43cux435ux442ux440ux44b-ux43eux431ux44aux435ux43aux442ux43eux432}
+
+Параметры объектов меняются в настройках.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1579}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2105}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2105}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2105}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2105}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Объект
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Стоимость \(C\), млн
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Срок \(T\), мес.
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Квартир
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Площадь квартиры, кв. м
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Панельный дом & 8 & 7 & 60 & 50 \\
+Монолитный дом & 10 & 9 & 60 & 55 \\
+Кирпичный дом & 12 & 10 & 60 & 60 \\
+Супермаркет & 2,5 & 5 & --- & --- \\
+\end{longtable}
+
+Себестоимость 1 кв. м жилья = стоимость дома / общая площадь дома.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{2. Затраты на
+строительство}\label{ux437ux430ux442ux440ux430ux442ux44b-ux43dux430-ux441ux442ux440ux43eux438ux442ux435ux43bux44cux441ux442ux432ux43e}
+
+Стоимость строительства расходуется равномерно в течение всего срока
+строительства.
+
+Ежемесячные затраты на один объект:
+
+\[
+C_{\text{month}} = \frac{C}{T}
+\]
+
+Пример: дом за 8 млн на 7 месяцев:
+
+\[
+\frac{8}{7} \approx 1{,}14
+\]
+
+млн у.е. в месяц.
+
+Если строится несколько объектов, затраты за месяц складываются:
+
+\[
+C_{\text{build}}
+=
+\frac{C_1}{T_1}
++
+\frac{C_2}{T_2}
++
+\dots
+\]
+
+Если у игрока не хватает денег на платёж, стройка этого объекта в этом
+месяце замораживается (затраты не списываются, срок сдвигается на
+месяц).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{3. Спрос на
+жильё}\label{ux441ux43fux440ux43eux441-ux43dux430-ux436ux438ux43bux44cux451}
+
+\begin{quote}
+\textbf{Примечание:} числа ниже --- допущения модели, см. раздел 14.
+\end{quote}
+
+Базовый спрос \(D_{\text{base}}(t)\) --- количество квартир в месяц для
+каждого типа дома.
+
+Он зависит от сезона:
+
+\[
+D_{\text{base}}(t)
+=
+25 \times (\text{коэффициент месяца})
+\]
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0588}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Месяц
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Янв
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Фев
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Мар
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Апр
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Май
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Июн
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Июл
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Авг
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Сен
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Окт
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Ноя
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Дек
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Коэффициент спроса & 0,6 & 0,6 & 0,7 & 0,8 & 0,9 & 1,0 & 1,1 & 1,2 & 1,4
+& 1,5 & 1,3 & 0,8 \\
+\end{longtable}
+
+Спрос растёт с весны и максимален осенью.
+
+Супермаркеты в микрорайоне увеличивают спрос на жильё. Каждый
+действующий супермаркет добавляет \(4\%\), каждый строящийся ---
+\(2\%\):
+
+\[
+D(t)
+=
+D_{\text{base}}(t)
+\times
+\left(
+1 + 0{,}04 \cdot S(t)
+\right)
+\]
+
+где:
+
+\begin{itemize}
+\tightlist
+\item
+  \(D(t)\) --- общий спрос на жильё
+\item
+  \(S(t)\) --- число действующих супермаркетов плюс половина числа
+  строящихся (у всех игроков вместе)
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{4. Объём предложения
+жилья}\label{ux43eux431ux44aux451ux43c-ux43fux440ux435ux434ux43bux43eux436ux435ux43dux438ux44f-ux436ux438ux43bux44cux44f}
+
+Каждый игрок в начале месяца определяет объём жилья, который он
+выставляет на продажу.
+
+Выставить можно только то, что уже построено: в готовом доме --- всё
+непроданное жильё, в строящемся --- часть, пропорциональную готовности
+дома.
+
+\subsection{Единицы
+измерения}\label{ux435ux434ux438ux43dux438ux446ux44b-ux438ux437ux43cux435ux440ux435ux43dux438ux44f}
+
+Спрос и предложение считаются в \textbf{квартирах}, цена --- в у.е. за
+\textbf{1 кв. м}.
+
+Чтобы перейти к деньгам, нужна площадь квартиры \(a\) (зависит от типа
+дома, см. таблицу в разделе 1).
+
+Предложение игрока \(i\) (в квартирах):
+
+\[
+Q_i(t)
+\]
+
+Общее предложение:
+
+\[
+Q_{\text{total}}(t)
+=
+Q_1(t)
++
+Q_2(t)
++
+\dots
++
+Q_N(t)
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{5. Влияние рекламы
+жилья}\label{ux432ux43bux438ux44fux43dux438ux435-ux440ux435ux43aux43bux430ux43cux44b-ux436ux438ux43bux44cux44f}
+
+Пусть \(A_i(t)\) --- затраты игрока \(i\) на рекламу жилья в тыс. у.е.
+
+Каждая 1 тыс. рекламы увеличивает продажи на \(0{,}5\%\) в текущем и
+следующем месяце:
+
+\[
+b_i
+=
+0{,}5\%
+\times
+\left(
+\text{реклама в этом месяце}
++
+\text{реклама в прошлом месяце}
+\right)
+\]
+
+где \(b_i\) --- рекламный бонус игрока \(i\) к продажам жилья.
+
+Пример: в прошлом месяце 2 тыс., в этом 4 тыс.:
+
+\[
+0{,}5\% \times 6 = 3\%
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{6. Распределение продаж
+жилья}\label{ux440ux430ux441ux43fux440ux435ux434ux435ux43bux435ux43dux438ux435-ux43fux440ux43eux434ux430ux436-ux436ux438ux43bux44cux44f}
+
+Продажа жилья идёт через единое риэлторское агентство.
+
+Агентство работает отдельно для каждого типа дома:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Если общее предложение не превышает спрос:
+
+  \[
+  Q_{\text{total}}(t) \leq D(t)
+  \]
+
+  всё выставленное жильё продаётся.
+\item
+  Если:
+
+  \[
+  Q_{\text{total}}(t) > D(t)
+  \]
+
+  предложения сортируются по цене от самой низкой, и спрос
+  удовлетворяется по очереди: сначала самая дешёвая цена, пока хватает
+  спроса.
+\item
+  Если цены одинаковые, остаток спроса делится между игроками
+  пропорционально их предложению.
+\item
+  Предложения с ценой выше предельной не принимаются.
+
+  Предельная цена:
+
+  \[
+  p_{\text{max}}
+  =
+  1{,}5
+  \times
+  p_{\text{fair}}
+  \]
+
+  где справедливая цена:
+
+  \[
+  p_{\text{fair}}
+  =
+  1{,}4
+  \times
+  c
+  \]
+
+  Здесь \(c\) --- себестоимость 1 кв. м.
+\item
+  Затем применяется реклама: проданный объём умножается на \((1+b_i)\),
+  но не больше выставленного объёма.
+\end{enumerate}
+
+\subsection{Пример}\label{ux43fux440ux438ux43cux435ux440}
+
+Панельный дом, квартира 50 кв. м.
+
+Спрос --- 100 квартир.
+
+Игрок A предлагает 60 квартир по 2000 у.е. за кв. м.
+
+Игрок B предлагает 70 квартир по 2200 у.е. за кв. м.
+
+Игрок A продаёт:
+
+\[
+q_A = 60
+\]
+
+Остаётся спрос:
+
+\[
+100 - 60 = 40
+\]
+
+Игрок B продаёт:
+
+\[
+q_B = 40
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{7. Продажа жилья и
+выручка}\label{ux43fux440ux43eux434ux430ux436ux430-ux436ux438ux43bux44cux44f-ux438-ux432ux44bux440ux443ux447ux43aux430}
+
+Пусть:
+
+\begin{itemize}
+\tightlist
+\item
+  \(q_i(t)\) --- фактически проданное количество \textbf{квартир} игрока
+  \(i\)
+\item
+  \(a\) --- площадь одной квартиры, кв. м (для данного типа дома)
+\item
+  \(p_i(t)\) --- цена \textbf{1 кв. м} жилья игрока \(i\)
+\end{itemize}
+
+Выручка от продажи жилья (если продаются дома разных типов, считается по
+каждому типу и суммируется):
+
+\[
+R_{\text{house},i}(t)
+=
+q_i(t)
+\cdot
+a
+\cdot
+p_i(t)
+\]
+
+\subsection{Пример}\label{ux43fux440ux438ux43cux435ux440-1}
+
+Продано 40 квартир по 50 кв. м по цене 2000 у.е. за кв. м:
+
+\[
+40 \cdot 50 \cdot 2000
+=
+4\,000\,000
+\]
+
+или:
+
+\[
+4\text{ млн у.е.}
+\]
+
+Выручка от продаж предыдущего месяца зачисляется игроку в начале
+текущего месяца.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{8. Реклама
+супермаркетов}\label{ux440ux435ux43aux43bux430ux43cux430-ux441ux443ux43fux435ux440ux43cux430ux440ux43aux435ux442ux43eux432}
+
+Пусть \(B_i(t)\) --- затраты игрока \(i\) на рекламу товаров в
+супермаркетах в тыс. у.е.
+
+Реклама возможна, только если есть построенный супермаркет.
+
+\(B_i\) --- общий рекламный бюджет игрока на все его супермаркеты:
+надбавка \(w_i\) применяется к прибыли \textbf{каждого} его построенного
+супермаркета, бюджет между ними не делится.
+
+Каждые 0,5 тыс. рекламы увеличивают прибыль от продаж на \(3\%\).
+
+\[
+w_i
+=
+3\%
+\times
+\frac{B_i}{0{,}5}
+\]
+
+где \(w_i\) --- рекламная надбавка к прибыли супермаркетов игрока \(i\).
+
+Пример: 2 тыс.:
+
+\[
+\frac{2}{0{,}5}
+=
+4
+\]
+
+блока по 0,5 тыс.
+
+Следовательно:
+
+\[
+w_i
+=
+4 \times 3\%
+=
+12\%
+\]
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{9. Сезонность продаж в
+супермаркетах}\label{ux441ux435ux437ux43eux43dux43dux43eux441ux442ux44c-ux43fux440ux43eux434ux430ux436-ux432-ux441ux443ux43fux435ux440ux43cux430ux440ux43aux435ux442ux430ux445}
+
+Базовая прибыль \textbf{одного} действующего супермаркета в месяц ---
+фиксированная сумма, не зависящая от его стоимости:
+
+\[
+P_{\text{base}}(t)
+=
+0{,}08\text{ млн}
+\times
+(\text{коэффициент месяца})
+\]
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0588}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 24\tabcolsep) * \real{0.0784}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Месяц
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Янв
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Фев
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Мар
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Апр
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Май
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Июн
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Июл
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Авг
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Сен
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Окт
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Ноя
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Дек
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Коэффициент продаж & 1,5 & 1,3 & 1,1 & 0,9 & 0,8 & 0,8 & 0,8 & 0,9 & 1,0
+& 1,1 & 1,2 & 1,4 \\
+\end{longtable}
+
+Продажи растут с осени и максимальны зимой.
+
+Дома в микрорайоне увеличивают продажи супермаркетов: каждый дом даёт
+\(+2\%\) (строящийся --- \(+1\%\)).
+
+Итоговая прибыль одного супермаркета:
+
+\[
+P
+=
+P_{\text{base}}(t)
+\times
+\left(
+1 + 0{,}02 \cdot H
+\right)
+\times
+\left(
+1 + w_i
+\right)
+\]
+
+где:
+
+\begin{itemize}
+\tightlist
+\item
+  \(H\) --- число готовых домов плюс половина строящихся (у всех игроков
+  вместе)
+\item
+  \(w_i\) --- надбавка за рекламу из раздела 8 (например, \(0{,}12\) для
+  \(+12\%\))
+\end{itemize}
+
+Прибыль за прошлый месяц зачисляется в начале текущего.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{10. Стоимость объектов при расчёте
+капитала}\label{ux441ux442ux43eux438ux43cux43eux441ux442ux44c-ux43eux431ux44aux435ux43aux442ux43eux432-ux43fux440ux438-ux440ux430ux441ux447ux451ux442ux435-ux43aux430ux43fux438ux442ux430ux43bux430}
+
+Каждый объект учитывается \textbf{только в одной} составляющей капитала:
+
+\begin{itemize}
+\tightlist
+\item
+  \(C_{\text{construction}}\) --- только \textbf{незавершённые} объекты
+  (дома и супермаркеты): равна сумме, уже потраченной на их
+  строительство;
+\item
+  \(C_{\text{housing}}\) --- только \textbf{непроданное жильё в
+  построенных домах}: площадь непроданных квартир × себестоимость 1 кв.
+  м;
+\item
+  \(C_{\text{markets}}\) --- только \textbf{построенные супермаркеты}:
+\end{itemize}
+
+\[
+C_{\text{markets}}
+=
+1{,}6
+\cdot
+C_{\text{spent}}
+\]
+
+где \(C_{\text{spent}}\) --- сумма, потраченная на строительство
+супермаркета.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{11. Общий капитал
+игрока}\label{ux43eux431ux449ux438ux439-ux43aux430ux43fux438ux442ux430ux43b-ux438ux433ux440ux43eux43aux430}
+
+Обозначим:
+
+\begin{itemize}
+\tightlist
+\item
+  \(C_{\text{construction}}\) --- стоимость строящихся (незавершённых)
+  объектов
+\item
+  \(C_{\text{housing}}\) --- стоимость непроданного жилья в построенных
+  домах
+\item
+  \(C_{\text{markets}}\) --- стоимость построенных супермаркетов
+\item
+  \(Cash\) --- денежные средства игрока
+\end{itemize}
+
+Тогда общий капитал игрока:
+
+\[
+K
+=
+C_{\text{construction}}
++
+C_{\text{housing}}
++
+C_{\text{markets}}
++
+Cash
+\]
+
+Денежные средства: начальный капитал минус все расходы (строительство,
+реклама) плюс все доходы (продажи жилья, прибыль супермаркетов).
+
+Баланс не может быть отрицательным.
+
+Проданное жильё учитывается только в \(Cash\) (как полученные деньги) и
+в стоимость объектов больше не входит.
+
+\begin{quote}
+\textbf{Допущение:} квартиры, проданные в ещё строящемся доме, уже
+превращены в деньги, поэтому из «потраченной суммы» этого дома
+вычитается их себестоимость --- иначе одна и та же часть дома была бы
+учтена дважды (в деньгах и в стоимости строящегося объекта).
+\end{quote}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{12. Условие
+победы}\label{ux443ux441ux43bux43eux432ux438ux435-ux43fux43eux431ux435ux434ux44b}
+
+После выполнения \(M\) игровых шагов для каждого игрока рассчитывается
+итоговый капитал:
+
+\[
+K_i(M)
+\]
+
+\begin{quote}
+\textbf{Допущение:} выручка от продаж последнего месяца \(M\) ещё не
+зачислена (по правилам она приходит в начале следующего месяца), поэтому
+она добавляется к деньгам при подведении итогов --- иначе проданное
+жильё пропало бы из капитала совсем. Это поведение отключается
+настройкой; тогда выручка последнего месяца не учитывается.
+\end{quote}
+
+Победителем становится игрок с максимальным капиталом:
+
+\[
+K_{\text{winner}}
+=
+\max_i K_i(M)
+\]
+
+При равенстве капиталов объявляется ничья.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{13. Последовательность расчётов за
+месяц}\label{ux43fux43eux441ux43bux435ux434ux43eux432ux430ux442ux435ux43bux44cux43dux43eux441ux442ux44c-ux440ux430ux441ux447ux451ux442ux43eux432-ux437ux430-ux43cux435ux441ux44fux446}
+
+\subsection{Начальная
+фаза}\label{ux43dux430ux447ux430ux43bux44cux43dux430ux44f-ux444ux430ux437ux430}
+
+Перед месяцем 1 каждый игрок получает стартовый капитал и решает, в
+какие объекты вложить деньги: выбирает, какие стройки начать.
+
+Первые платежи за эти стройки списываются в шаге 1 месяца 1.
+
+\subsection{Новые стройки в ходе
+игры}\label{ux43dux43eux432ux44bux435-ux441ux442ux440ux43eux439ux43aux438-ux432-ux445ux43eux434ux435-ux438ux433ux440ux44b}
+
+Решение начать новую стройку принимается в шаге 4 месяца \(t\).
+
+Первый платёж списывается в шаге 1 месяца \(t+1\).
+
+\subsection{Расчёты за
+месяц}\label{ux440ux430ux441ux447ux451ux442ux44b-ux437ux430-ux43cux435ux441ux44fux446}
+
+Для каждого месяца \(t\) выполняется следующая последовательность:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  рассчитываются и списываются затраты на строительство;
+\item
+  начисляется выручка от продаж жилья предыдущего месяца;
+\item
+  начисляется прибыль супермаркетов;
+\item
+  игроки принимают решения на месяц: новые стройки, предложение жилья;
+\item
+  устанавливаются цены;
+\item
+  учитываются затраты на рекламу жилья;
+\item
+  учитываются затраты на рекламу в супермаркетах;
+\item
+  риэлторское агентство распределяет спрос и определяет объём продаж;
+\item
+  обновляется состояние объектов и капитал игроков.
+\end{enumerate}
+
+После последнего месяца рассчитывается итоговый капитал всех игроков и
+определяется победитель.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{14. Допущения
+модели}\label{ux434ux43eux43fux443ux449ux435ux43dux438ux44f-ux43cux43eux434ux435ux43bux438}
+
+Значения ниже не заданы в ТЗ и приняты как допущения модели. Их можно
+менять в настройках.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Допущение
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Значение по умолчанию
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Месяц старта игры & март \\
+Сезонные коэффициенты спроса и продаж & таблицы в разделах 3 и 9 \\
+Базовый спрос & 25 квартир в месяц на каждый тип дома \\
+Влияние супермаркетов на спрос & +4 \% за действующий, +2 \% за
+строящийся \\
+Влияние домов на продажи супермаркетов & +2 \% за готовый, +1 \% за
+строящийся \\
+Базовая прибыль супермаркета & 0,08 млн в месяц \\
+Параметры монолитного и кирпичного домов, число квартир и площади &
+таблица раздела 1 \\
+Предельная цена & 1,5 × 1,4 × себестоимость кв. м \\
+Нехватка денег на платёж & стройка замораживается на месяц \\
+Реклама жилья & привлекает покупателей сверх спроса, но не больше
+выставленного объёма \\
+Выручка последнего месяца & зачисляется при подведении итогов
+(обязательно) \\
+Жильё, проданное в строящемся доме & вычитается из стоимости этого дома
+(раздел 11) \\
+Ничья & объявляется ничья \\
+\end{longtable}
+
+\end{document}
