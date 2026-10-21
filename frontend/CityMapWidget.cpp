@@ -225,15 +225,16 @@ void CityMapWidget::drawBuilding(QPainter &painter, const QPointF &center,
                              QPointF(craneX + width * 0.27, craneTop + 12.0));
         }
 
-        if (shop && building.stage >= 1) {
-            const QRectF siteSign(center.x() - width * 0.36,
+        // Keep the shop identifiable from the very first construction stage.
+        if (shop) {
+            const QRectF siteSign(center.x() - width * 0.40,
                                   baseY - height * 0.76,
-                                  width * 0.43, qMax<qreal>(6.0, height * 0.30));
+                                  width * 0.80, qMax<qreal>(7.0, height * 0.28));
             painter.setPen(QPen(QColor("#35434b"), 0.7));
             painter.setBrush(QColor("#f4f0de"));
             painter.drawRect(siteSign);
             painter.setPen(QColor("#273743"));
-            painter.setFont(QFont("Arial", 5, QFont::Bold));
+            painter.setFont(QFont("Arial", qMax(5, qRound(tileWidth * 0.09)), QFont::Bold));
             painter.drawText(siteSign, Qt::AlignCenter, QStringLiteral("МАГАЗИН"));
         }
         return;
@@ -303,9 +304,9 @@ void CityMapWidget::drawBuilding(QPainter &painter, const QPointF &center,
 
         painter.setPen(Qt::NoPen);
         painter.setBrush(QColor("#f4f0de"));
-        const QRectF sign(center.x() - width * 0.30,
+        const QRectF sign(center.x() - width * 0.38,
                           baseY - height * 0.74,
-                          width * 0.52, qMax<qreal>(5.0, height * 0.18));
+                          width * 0.76, qMax<qreal>(6.0, height * 0.20));
         painter.setPen(QPen(QColor("#35434b"), 0.6));
         painter.setBrush(QColor("#f4f0de"));
         painter.drawRect(sign);
@@ -313,6 +314,7 @@ void CityMapWidget::drawBuilding(QPainter &painter, const QPointF &center,
         painter.setFont(QFont("Arial", qMax(5, qRound(tileWidth * 0.095)), QFont::Bold));
         painter.drawText(sign, Qt::AlignCenter, QStringLiteral("МАГАЗИН"));
     } else {
+        // House windows are intentionally drawn only after the building is complete.
         const int rows = office ? 5 : 3;
         for (int floor = 0; floor < rows; ++floor) {
             const qreal y = baseY - height * (floor + 0.55) / rows;
