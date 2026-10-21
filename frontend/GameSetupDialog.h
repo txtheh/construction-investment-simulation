@@ -5,7 +5,6 @@
 #include <QDialog>
 #include <QVector>
 
-class QComboBox;
 class QSpinBox;
 class QTableWidget;
 
@@ -20,6 +19,6 @@ private:
     void rebuildBotRows(int count);
 
     QSpinBox *botCount_ = nullptr;
-    QComboBox *months_ = nullptr;
+    QSpinBox *months_ = nullptr;
     QTableWidget *table_ = nullptr;
 };
