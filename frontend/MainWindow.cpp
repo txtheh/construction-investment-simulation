@@ -3,6 +3,11 @@
 #include "GameSetupDialog.h"
 #include "ResultsDialog.h"
 
+#include "../backend/player/BalancedPlayer.h"
+#include "../backend/player/BuilderPlayer.h"
+#include "../backend/player/MarketPlayer.h"
+#include "../backend/player/RandomPlayer.h"
+
 #include <QApplication>
 #include <QFrame>
 #include <QGridLayout>
@@ -15,6 +20,7 @@
 #include <QPoint>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QSet>
 #include <QSizePolicy>
 #include <QSpacerItem>
 #include <QStackedWidget>
@@ -35,6 +41,7 @@
 #include <QtMath>
 #include <algorithm>
 #include <random>
+#include <stdexcept>
 
 namespace {
 const QVector<QColor> botColors = {
@@ -188,7 +195,48 @@ QWidget *makeBottomPanel(const QString &titleText, QWidget *content) {
     layout->addWidget(content, 1);
     return panel;
 }
+
+std::unique_ptr<Player> makeBot(const QString &strategy, int id,
+                                 const std::string &name, const Config &config) {
+    if (strategy == QLatin1String("BuilderPlayer")) {
+        return std::make_unique<BuilderPlayer>(id, name, config);
+    }
+    if (strategy == QLatin1String("MarketPlayer")) {
+        return std::make_unique<MarketPlayer>(id, name, config);
+    }
+    if (strategy == QLatin1String("BalancedPlayer")) {
+        return std::make_unique<BalancedPlayer>(id, name, config);
+    }
+    return std::make_unique<RandomPlayer>(id, name, config);
 }
+
+BuildingVisual toVisual(const BuildingView &bv, int owner,
+                        int gridRow, int gridCol) {
+    BuildingVisual v;
+    v.owner = owner;
+    v.row = gridRow;
+    v.column = gridCol;
+    v.type = (bv.buildingType == BuildingType::Supermarket)
+                 ? BuildingVisual::Type::Shop
+                 : BuildingVisual::Type::House;
+    v.houseType = static_cast<int>(bv.houseType);
+
+    if (bv.isBuilt) {
+        v.stage = 4;
+    } else if (bv.constructionMonths <= 0) {
+        v.stage = 0;
+    } else {
+        const qreal progress =
+            static_cast<qreal>(bv.monthsBuilt) / bv.constructionMonths;
+        v.stage = (progress < 0.25) ? 0
+                : (progress < 0.50) ? 1
+                : (progress < 0.75) ? 2
+                                    : 3;
+    }
+    v.apartmentsSold = bv.soldApartments;
+    return v;
+}
+}  // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
@@ -468,122 +516,37 @@ QWidget *MainWindow::createLegendPanel() {
 
 QWidget *MainWindow::createRealtorPanel() {
     auto *content = new QWidget;
-    content->setMinimumHeight(380);
+    auto *layout = new QVBoxLayout(content);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(6);
+
+    auto *subtitle = new QLabel(QStringLiteral("Последние сделки (месяц, участник, тип, кв., цена/м²)"), content);
+    subtitle->setStyleSheet("color: #9dafbd; font-size: 11px;");
+    layout->addWidget(subtitle);
+
+    salesTable_ = new QTableWidget(content);
+    salesTable_->setColumnCount(5);
+    salesTable_->setHorizontalHeaderLabels({
+        QStringLiteral("Мес."), QStringLiteral("Участник"),
+        QStringLiteral("Тип"), QStringLiteral("Кв."), QStringLiteral("₽/м²")
+    });
+    salesTable_->verticalHeader()->setVisible(false);
+    salesTable_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    salesTable_->horizontalHeader()->setStretchLastSection(true);
+    salesTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    salesTable_->setSelectionMode(QAbstractItemView::NoSelection);
+    salesTable_->setStyleSheet(
+        "QTableWidget { background: #1b2936; color: #e6edf3; "
+        "gridline-color: #30404d; border: 1px solid #354657; }"
+        "QHeaderView::section { background: #253442; color: #c7d4df; "
+        "border: none; padding: 4px; }"
+    );
+    layout->addWidget(salesTable_, 1);
 
     QWidget *panel = makeBottomPanel(QStringLiteral("РИЕЛТОРСКОЕ АГЕНТСТВО"), content);
     panel->setMinimumWidth(305);
     panel->setMinimumHeight(430);
     return panel;
-}
-
-void MainWindow::refreshSalesTable() {
-    if (!salesTable_) {
-        return;
-    }
-
-    salesTable_->clearSpans();
-    salesTable_->setRowCount(0);
-    int count = qMin(4, static_cast<int>(demoSales_.size()));
-    if (count == 0) {
-        salesTable_->setRowCount(1);
-        auto *item = new QTableWidgetItem(QStringLiteral("Продаж пока нет — они появятся по ходу игры"));
-        item->setForeground(QColor("#8297a7"));
-        salesTable_->setItem(0, 0, item);
-        salesTable_->setSpan(0, 0, 1, 5);
-        salesTable_->setRowHeight(0, 23);
-        return;
-    }
-
-    int first = static_cast<int>(demoSales_.size()) - count;
-    for (int row = 0; row < count; ++row) {
-        const DemoSale &sale = demoSales_[first + row];
-        QString botName = sale.botIndex >= 0 && sale.botIndex < bots_.size()
-                              ? bots_[sale.botIndex].name : QStringLiteral("—");
-        QStringList values = {
-            QString::number(sale.month),
-            botName,
-            sale.houseType,
-            QString::number(sale.apartments),
-            QLocale(QLocale::Russian).toString(sale.pricePerSqm, 'f', 0)
-        };
-        for (int column = 0; column < values.size(); ++column) {
-            auto *item = new QTableWidgetItem(values[column]);
-            if (column == 1 && sale.botIndex >= 0 && sale.botIndex < bots_.size()) {
-                item->setForeground(bots_[sale.botIndex].color);
-            }
-            salesTable_->setItem(row, column, item);
-        }
-        salesTable_->setRowHeight(row, 20);
-    }
-}
-
-void MainWindow::recordDemoSales() {
-    if (currentMonth_ < 2 || bots_.isEmpty()) {
-        return;
-    }
-
-    QVector<int> eligible;
-    for (int i = 0; i < buildings_.size(); ++i) {
-        const BuildingVisual &building = buildings_[i];
-        if (building.type == BuildingVisual::Type::House && building.stage >= 2) {
-            int availableApartments = building.stage * 15 - building.apartmentsSold;
-            if (availableApartments > 0) {
-                eligible.append(i);
-            }
-        }
-    }
-
-    if (eligible.isEmpty()) {
-        return;
-    }
-
-    int transactions = qMin(2, static_cast<int>(eligible.size()));
-    for (int i = 0; i < transactions; ++i) {
-        int buildingIndex = eligible[(currentMonth_ + i * 3) % eligible.size()];
-        BuildingVisual &building = buildings_[buildingIndex];
-        int availableApartments = qMax(0, building.stage * 15 - building.apartmentsSold);
-        if (availableApartments <= 0) {
-            continue;
-        }
-
-        int apartmentsSold = qMin(availableApartments, 4 + ((currentMonth_ * 7 + i * 5) % 14));
-        building.apartmentsSold += apartmentsSold;
-
-        QStringList types = {
-            QStringLiteral("Панельный"),
-            QStringLiteral("Монолитный"),
-            QStringLiteral("Кирпичный")
-        };
-        int houseType = building.houseType % static_cast<int>(types.size());
-        double basePrice = 3900.0;
-        if (houseType == 1) {
-            basePrice = 4400.0;
-        }
-        if (houseType == 2) {
-            basePrice = 4850.0;
-        }
-        double price = basePrice + (building.owner % 3) * 75.0;
-
-        DemoSale sale;
-        sale.month = currentMonth_;
-        sale.botIndex = building.owner;
-        sale.houseType = types[houseType];
-        sale.apartments = apartmentsSold;
-        sale.pricePerSqm = price;
-        demoSales_.append(sale);
-
-        if (demoSales_.size() > 20) {
-            demoSales_.removeFirst();
-        }
-
-        addEvent(QStringLiteral("Месяц %1: агентство распределило продажу — %2, %3 кв., %4 за м².")
-                     .arg(currentMonth_)
-                     .arg(bots_[building.owner].name)
-                     .arg(apartmentsSold)
-                     .arg(QLocale(QLocale::Russian).toString(price, 'f', 0)));
-    }
-
-    refreshSalesTable();
 }
 
 QWidget *MainWindow::createMiniMapPanel() {
@@ -624,40 +587,128 @@ void MainWindow::openSettingsDialog() {
 void MainWindow::openSetupDialog() {
     GameSetupDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted) {
-        startDemoGame(dialog.botSetups(), dialog.gameMonths(), preferredGridSize_);
+        startGame(dialog.botSetups(), dialog.gameMonths(), preferredGridSize_);
     }
 }
 
-void MainWindow::startDemoGame(const QVector<BotSetup> &setups, int months, int gridSize) {
+void MainWindow::startGame(const QVector<BotSetup> &setups, int months, int gridSize) {
     autoplayTimer_->stop();
     autoplayRunning_ = false;
     autoplayButton_->setText(QStringLiteral("⏩  Промотка"));
     pauseButton_->setText(QStringLiteral("Ⅱ  Пауза"));
 
-    bots_.clear();
-    for (int i = 0; i < setups.size(); ++i) {
-        BotInfo bot;
-        bot.name = setups[i].name;
-        bot.strategy = setups[i].strategy;
-        bot.color = botColors[i % botColors.size()];
-        bot.cash = 37000000.0 - i * 1350000.0;
-        bot.totalCapital = 37000000.0 + (setups.size() - i) * 450000.0;
-        bots_.append(bot);
+    try {
+        Config config;
+        config.playerCount = setups.size();
+        config.gameMonths = months;
+
+        engine_ = std::make_unique<GameEngine>(config);
+
+        for (int i = 0; i < setups.size(); ++i) {
+            engine_->addPlayer(makeBot(setups[i].strategy, i,
+                                       setups[i].name.toStdString(), config));
+        }
+        engine_->startGame();
+    } catch (const std::exception &e) {
+        QMessageBox::critical(this, QStringLiteral("Ошибка запуска"),
+                              QString::fromUtf8(e.what()));
+        engine_.reset();
+        return;
     }
 
-    currentMonth_ = 0;
+    currentMonth_ = engine_->getCurrentMonth();
     totalMonths_ = months;
-    nextDemoSite_ = 0;
     preferredGridSize_ = gridSize;
-    buildings_.clear();
-    demoSales_.clear();
-    refreshSalesTable();
-    demoSites_.clear();
 
-    const int blocksPerSide = (preferredGridSize_ + 3) / 4;
+    bots_.clear();
+    buildings_.clear();
+    trackedBuildings_.clear();
+    buildAvailableSites(gridSize);
+
+    cityMap_->setGridSize(gridSize);
+    if (auto *miniMap = dynamic_cast<MiniMapWidget *>(miniMap_)) {
+        miniMap->setGridSize(gridSize);
+    }
+
+    eventsLog_->clear();
+    refreshFromEngine();
+
+    if (buildings_.isEmpty()) {
+        addEvent(QStringLiteral("Новая игра: город пока пуст."));
+        addEvent(QStringLiteral("Первые строительные площадки появятся после перехода к следующему месяцу."));
+    } else {
+        addEvent(QStringLiteral("Новая игра: первые стройки уже начались."));
+    }
+
+    pages_->setCurrentWidget(gamePage_);
+}
+
+void MainWindow::advanceMonth() {
+    if (!engine_ || engine_->isFinished()) {
+        return;
+    }
+
+    try {
+        if (!engine_->advanceMonth()) {
+            autoplayTimer_->stop();
+            autoplayRunning_ = false;
+            showResults();
+            return;
+        }
+    } catch (const std::exception &e) {
+        autoplayTimer_->stop();
+        autoplayRunning_ = false;
+        QMessageBox::critical(this, QStringLiteral("Ошибка хода"),
+                              QString::fromUtf8(e.what()));
+        return;
+    }
+
+    refreshFromEngine();
+
+    const auto &history = engine_->getState().getSalesHistory();
+    int salesCount = 0;
+    for (auto it = history.rbegin(); it != history.rend(); ++it) {
+        if (it->month != currentMonth_) break;
+        ++salesCount;
+    }
+    if (salesCount > 0) {
+        addEvent(QStringLiteral("Месяц %1: агентство закрыло %2 сделок.")
+                     .arg(currentMonth_).arg(salesCount));
+    } else {
+        addEvent(QStringLiteral("Месяц %1: продаж не было.").arg(currentMonth_));
+    }
+
+    if (engine_->isFinished()) {
+        autoplayTimer_->stop();
+        autoplayRunning_ = false;
+        autoplayButton_->setText(QStringLiteral("⏩  Промотка"));
+        QTimer::singleShot(250, this, [this]() { showResults(); });
+    }
+}
+
+void MainWindow::toggleAutoplay() {
+    if (!engine_ || engine_->isFinished()) {
+        return;
+    }
+    if (autoplayRunning_) {
+        autoplayTimer_->stop();
+        autoplayRunning_ = false;
+        autoplayButton_->setText(QStringLiteral("⏩  Промотка"));
+    } else {
+        autoplayTimer_->start();
+        autoplayRunning_ = true;
+        autoplayButton_->setText(QStringLiteral("⏸  Стоп"));
+    }
+}
+
+void MainWindow::buildAvailableSites(int gridSize) {
+    availableSites_.clear();
+
+    const int blocksPerSide = (gridSize + 3) / 4;
     QVector<QVector<QPoint>> blocks(blocksPerSide * blocksPerSide);
-    for (int row = 0; row < preferredGridSize_; ++row) {
-        for (int column = 0; column < preferredGridSize_; ++column) {
+
+    for (int row = 0; row < gridSize; ++row) {
+        for (int column = 0; column < gridSize; ++column) {
             if (row % 4 != 0 && column % 4 != 0) {
                 const int blockIndex = (row / 4) * blocksPerSide + column / 4;
                 blocks[blockIndex].append(QPoint(row, column));
@@ -676,7 +727,7 @@ void MainWindow::startDemoGame(const QVector<BotSetup> &setups, int months, int 
         bool addedCell = false;
         for (const QVector<QPoint> &block : blocks) {
             if (cellIndex < block.size()) {
-                demoSites_.append(block[cellIndex]);
+                availableSites_.append(block[cellIndex]);
                 addedCell = true;
             }
         }
@@ -684,148 +735,234 @@ void MainWindow::startDemoGame(const QVector<BotSetup> &setups, int months, int 
             break;
         }
     }
-    cityMap_->setGridSize(gridSize);
-    cityMap_->setOwnerColors(botColors.mid(0, bots_.size()));
-    if (auto *miniMap = dynamic_cast<MiniMapWidget *>(miniMap_)) {
-        miniMap->setGridSize(gridSize);
-    }
-    cityMap_->setBuildings(buildings_);
-    eventsLog_->clear();
-    addEvent(QStringLiteral("Новая игра: город пока пуст."));
-    addEvent(QStringLiteral("Первые строительные площадки появятся после перехода к следующему месяцу."));
-    addEvent(QStringLiteral("Статистика и развитие города пока демонстрационные."));
-    updateGameUi();
-    pages_->setCurrentWidget(gamePage_);
 }
 
-void MainWindow::advanceMonth() {
-    if (currentMonth_ >= totalMonths_) {
+bool MainWindow::matchesProgress(const BuildingView &o, const BuildingView &n) const {
+    if (o.buildingType != n.buildingType) return false;
+    if (o.hasHouseType != n.hasHouseType) return false;
+    if (o.hasHouseType && o.houseType != n.houseType) return false;
+
+    // Оба строятся: месяц ровно +1
+    if (!o.isBuilt && !n.isBuilt) {
+        return n.monthsBuilt == o.monthsBuilt + 1;
+    }
+
+    // Только что достроилось
+    if (!o.isBuilt && n.isBuilt) {
+        return true;
+    }
+
+    // Оба построены: проданных квартир не убывает
+    if (o.isBuilt && n.isBuilt) {
+        return n.soldApartments >= o.soldApartments;
+    }
+
+    return false;
+}
+
+void MainWindow::rebuildBuildingVisuals() {
+    buildings_.clear();
+    if (!engine_) {
         return;
     }
 
-    ++currentMonth_;
-    int completedNow = 0;
-    for (BuildingVisual &building : buildings_) {
-        if (building.stage < 4) {
-            ++building.stage;
-            if (building.stage == 4) {
-                ++completedNow;
+    QSet<QPoint> usedCells;
+    for (auto it = trackedBuildings_.constBegin(); it != trackedBuildings_.constEnd(); ++it) {
+        for (const TrackedBuilding &tb : it.value()) {
+            usedCells.insert(tb.cell);
+        }
+    }
+
+    QHash<int, QVector<TrackedBuilding>> newTracked;
+    const auto &players = engine_->getState().getPlayers();
+
+    for (std::size_t pi = 0; pi < players.size(); ++pi) {
+        const int playerId = players[pi]->getId();
+        const PublicView view = engine_->getState().createPublicView(playerId);
+
+        QVector<BuildingView> current;
+        current.reserve(static_cast<int>(view.getOwnBuildings().size()));
+        for (const BuildingView &bv : view.getOwnBuildings()) {
+            current.append(bv);
+        }
+
+        const QVector<TrackedBuilding> old = trackedBuildings_.value(playerId);
+        QVector<bool> oldUsed(old.size(), false);
+        QVector<TrackedBuilding> fresh;
+        fresh.reserve(current.size());
+
+        // Фаза 1: сопоставление с прошлым кадром
+        for (const BuildingView &bv : current) {
+            int match = -1;
+            for (int i = 0; i < old.size(); ++i) {
+                if (oldUsed[i]) continue;
+                if (matchesProgress(old[i].view, bv)) {
+                    match = i;
+                    break;
+                }
+            }
+            TrackedBuilding tb;
+            tb.view = bv;
+            if (match >= 0) {
+                oldUsed[match] = true;
+                tb.cell = old[match].cell;
+            } else {
+                tb.cell = QPoint(-1, -1);
+            }
+            fresh.append(tb);
+        }
+
+        // Фаза 2: освободить клетки исчезнувших зданий
+        for (int i = 0; i < old.size(); ++i) {
+            if (!oldUsed[i]) {
+                usedCells.remove(old[i].cell);
             }
         }
+
+        // Фаза 3: выделить клетки новым зданиям
+        for (TrackedBuilding &tb : fresh) {
+            if (tb.cell.x() >= 0) continue;
+            for (const QPoint &site : availableSites_) {
+                if (!usedCells.contains(site)) {
+                    tb.cell = site;
+                    usedCells.insert(site);
+                    break;
+                }
+            }
+        }
+
+        // Отрисовка
+        for (const TrackedBuilding &tb : fresh) {
+            if (tb.cell.x() < 0) continue;
+            buildings_.append(toVisual(tb.view, static_cast<int>(pi),
+                                       tb.cell.x(), tb.cell.y()));
+        }
+
+        newTracked[playerId] = fresh;
     }
 
-    int startsThisMonth = currentMonth_ <= 2 ? qMin(2, static_cast<int>(bots_.size()))
-                                                : (currentMonth_ % 3 == 0 ? 1 : 2);
-    int startedNow = 0;
-    for (int i = 0; i < startsThisMonth && nextDemoSite_ < demoSites_.size(); ++i) {
-        BuildingVisual building;
-        building.owner = nextDemoSite_ % bots_.size();
-        building.row = demoSites_[nextDemoSite_].x();
-        building.column = demoSites_[nextDemoSite_].y();
-        building.type = nextDemoSite_ % 4 == 2
-                            ? BuildingVisual::Type::Shop
-                            : BuildingVisual::Type::House;
-        building.stage = 0;
-        building.houseType = (building.owner + building.row + building.column) % 3;
-        building.apartmentsSold = 0;
-        buildings_.append(building);
-        ++nextDemoSite_;
-        ++startedNow;
-
-        QString typeName = building.type == BuildingVisual::Type::Shop
-                               ? QStringLiteral("магазина")
-                               : QStringLiteral("жилого дома");
-        addEvent(QStringLiteral("Месяц %1: %2 начал строительство %3.")
-                     .arg(currentMonth_)
-                     .arg(bots_[building.owner].name)
-                     .arg(typeName));
-    }
-
-    if (completedNow > 0) {
-        addEvent(QStringLiteral("Месяц %1: завершено объектов — %2.").arg(currentMonth_).arg(completedNow));
-    }
-    if (startedNow == 0 && completedNow == 0) {
-        addEvent(QStringLiteral("Месяц %1: строительные работы продолжаются.").arg(currentMonth_));
-    }
-
-    recordDemoSales();
-    cityMap_->setBuildings(buildings_);
-    updateGameUi();
-
-    if (currentMonth_ >= totalMonths_) {
-        autoplayTimer_->stop();
-        autoplayRunning_ = false;
-        autoplayButton_->setText(QStringLiteral("⏩  Промотка"));
-        QTimer::singleShot(250, this, [this]() { showResults(); });
-    }
+    trackedBuildings_ = newTracked;
 }
 
-void MainWindow::toggleAutoplay() {
-    if (currentMonth_ >= totalMonths_) {
+void MainWindow::refreshFromEngine() {
+    if (!engine_) {
         return;
     }
-    if (autoplayRunning_) {
-        autoplayTimer_->stop();
-        autoplayRunning_ = false;
-        autoplayButton_->setText(QStringLiteral("⏩  Промотка"));
-    } else {
-        autoplayTimer_->start();
-        autoplayRunning_ = true;
-        autoplayButton_->setText(QStringLiteral("⏸  Стоп"));
-    }
-}
 
-void MainWindow::updateCountsFromBuildings() {
-    for (BotInfo &bot : bots_) {
-        bot.houses = 0;
-        bot.shops = 0;
-        bot.underConstruction = 0;
-        bot.completed = 0;
+    // 1. Заполнить bots_ из состояния движка
+    bots_.clear();
+    const auto &players = engine_->getState().getPlayers();
+    for (std::size_t i = 0; i < players.size(); ++i) {
+        const Player &p = *players[i];
+        BotInfo b;
+        b.name = QString::fromStdString(p.getName());
+        b.color = botColors[i % botColors.size()];
+        b.cash = p.getCapital();
+        b.totalCapital = p.getTotalCapital();
+
+        int queuedHouses = 0;
+        int queuedShops = 0;
+        for (const auto &bld : p.getBuildingQueue()) {
+            if (dynamic_cast<const House *>(bld.get())) {
+                ++queuedHouses;
+            } else if (dynamic_cast<const Supermarket *>(bld.get())) {
+                ++queuedShops;
+            }
+        }
+
+        b.houses = static_cast<int>(p.getBuiltHouses().size()) + queuedHouses;
+        b.shops = static_cast<int>(p.getBuiltSupermarkets().size()) + queuedShops;
+        b.underConstruction = static_cast<int>(p.getBuildingQueue().size());
+        b.completed = static_cast<int>(p.getBuiltHouses().size()
+                                       + p.getBuiltSupermarkets().size());
+
+        bots_.append(b);
     }
 
-    for (const BuildingVisual &building : buildings_) {
-        if (building.owner < 0 || building.owner >= bots_.size()) {
-            continue;
-        }
-        BotInfo &bot = bots_[building.owner];
-        if (building.type == BuildingVisual::Type::House) {
-            ++bot.houses;
-        } else if (building.type == BuildingVisual::Type::Shop) {
-            ++bot.shops;
-        }
-        if (building.stage < 4) {
-            ++bot.underConstruction;
-        } else {
-            ++bot.completed;
-        }
-    }
-}
+    // 2. Перестроить визуализацию зданий
+    rebuildBuildingVisuals();
 
-void MainWindow::updateGameUi() {
+    // 3. Обновить UI
+    currentMonth_ = engine_->getCurrentMonth();
     if (monthLabel_) {
-        monthLabel_->setText(QStringLiteral("Месяц: %1 / %2").arg(currentMonth_).arg(totalMonths_));
+        monthLabel_->setText(QStringLiteral("Месяц: %1 / %2")
+                                 .arg(currentMonth_).arg(totalMonths_));
     }
     if (monthProgress_) {
         monthProgress_->setRange(0, totalMonths_);
         monthProgress_->setValue(currentMonth_);
     }
-    updateCountsFromBuildings();
+
     rebuildBotPanels();
+
+    cityMap_->setOwnerColors(botColors.mid(0, bots_.size()));
+    cityMap_->setBuildings(buildings_);
     if (auto *miniMap = dynamic_cast<MiniMapWidget *>(miniMap_)) {
         miniMap->setBuildings(buildings_, botColors.mid(0, bots_.size()));
     }
+
+    refreshSalesTable();
 }
 
-void MainWindow::clearLayout(QLayout *layout) {
-    while (QLayoutItem *item = layout->takeAt(0)) {
-        if (item->widget()) {
-            delete item->widget();
+void MainWindow::refreshSalesTable() {
+    if (!salesTable_ || !engine_) {
+        return;
+    }
+
+    salesTable_->clearSpans();
+    salesTable_->setRowCount(0);
+
+    const auto &history = engine_->getState().getSalesHistory();
+    const int count = qMin(4, static_cast<int>(history.size()));
+
+    if (count == 0) {
+        salesTable_->setRowCount(1);
+        auto *item = new QTableWidgetItem(
+            QStringLiteral("Продаж пока нет — они появятся по ходу игры"));
+        item->setForeground(QColor("#8297a7"));
+        salesTable_->setItem(0, 0, item);
+        salesTable_->setSpan(0, 0, 1, 5);
+        salesTable_->setRowHeight(0, 23);
+        return;
+    }
+
+    const auto &players = engine_->getState().getPlayers();
+    const int first = static_cast<int>(history.size()) - count;
+
+    for (int row = 0; row < count; ++row) {
+        const SaleRecord &sale = history[first + row];
+
+        QString botName = QStringLiteral("—");
+        int botIndex = -1;
+        for (std::size_t i = 0; i < players.size(); ++i) {
+            if (players[i]->getId() == sale.playerId) {
+                botName = QString::fromStdString(players[i]->getName());
+                botIndex = static_cast<int>(i);
+                break;
+            }
         }
-        if (item->layout()) {
-            clearLayout(item->layout());
-            delete item->layout();
+
+        const QString typeName =
+            (sale.houseType == HouseType::Panel)        ? QStringLiteral("Панельный")
+          : (sale.houseType == HouseType::Monolithic)   ? QStringLiteral("Монолитный")
+                                                        : QStringLiteral("Кирпичный");
+
+        const QStringList values = {
+            QString::number(sale.month),
+            botName,
+            typeName,
+            QString::number(sale.apartmentsSold),
+            QLocale(QLocale::Russian).toString(sale.pricePerSqm, 'f', 0)
+        };
+
+        for (int col = 0; col < values.size(); ++col) {
+            auto *item = new QTableWidgetItem(values[col]);
+            if (col == 1 && botIndex >= 0) {
+                item->setForeground(botColors[botIndex % botColors.size()]);
+            }
+            salesTable_->setItem(row, col, item);
         }
-        delete item;
+        salesTable_->setRowHeight(row, 20);
     }
 }
 
@@ -841,6 +978,19 @@ void MainWindow::rebuildBotPanels() {
     leftBotsLayout_->addStretch();
 }
 
+void MainWindow::clearLayout(QLayout *layout) {
+    while (QLayoutItem *item = layout->takeAt(0)) {
+        if (item->widget()) {
+            delete item->widget();
+        }
+        if (item->layout()) {
+            clearLayout(item->layout());
+            delete item->layout();
+        }
+        delete item;
+    }
+}
+
 void MainWindow::addEvent(const QString &message) {
     if (eventsLog_) {
         eventsLog_->appendPlainText(message);
@@ -850,6 +1000,7 @@ void MainWindow::addEvent(const QString &message) {
 void MainWindow::showResults() {
     autoplayTimer_->stop();
     autoplayRunning_ = false;
+    refreshFromEngine();
     ResultsDialog dialog(bots_, totalMonths_, this);
     if (dialog.exec() == QDialog::Accepted) {
         openSetupDialog();

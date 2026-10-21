@@ -3,10 +3,15 @@
 #include "CityMapWidget.h"
 #include "GameTypes.h"
 
+#include "../backend/core/GameEngine.h"
+
+#include <QHash>
 #include <QMainWindow>
 #include <QPoint>
-#include <QVector>
 #include <QString>
+#include <QVector>
+
+#include <memory>
 
 class QHBoxLayout;
 class QLayout;
@@ -25,6 +30,11 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 private:
+    struct TrackedBuilding {
+        BuildingView view;
+        QPoint cell;
+    };
+
     QWidget *createMenuPage();
     QWidget *createGamePage();
     QWidget *createStatPanel(const BotInfo &bot);
@@ -32,18 +42,19 @@ private:
     QWidget *createRealtorPanel();
     QWidget *createMiniMapPanel();
     void openSetupDialog();
-    void startDemoGame(const QVector<BotSetup> &setups, int months, int gridSize);
+    void startGame(const QVector<BotSetup> &setups, int months, int gridSize);
     void openSettingsDialog();
     void advanceMonth();
     void toggleAutoplay();
-    void updateGameUi();
+    void refreshFromEngine();
+    void rebuildBuildingVisuals();
     void rebuildBotPanels();
     void clearLayout(QLayout *layout);
     void addEvent(const QString &message);
     void showResults();
-    void updateCountsFromBuildings();
-    void recordDemoSales();
     void refreshSalesTable();
+    void buildAvailableSites(int gridSize);
+    bool matchesProgress(const BuildingView &oldBv, const BuildingView &newBv) const;
 
     QStackedWidget *pages_ = nullptr;
     QWidget *menuPage_ = nullptr;
@@ -60,20 +71,15 @@ private:
     QTableWidget *salesTable_ = nullptr;
     QTimer *autoplayTimer_ = nullptr;
 
+    std::unique_ptr<GameEngine> engine_;
+
     QVector<BotInfo> bots_;
     QVector<BuildingVisual> buildings_;
-    QVector<QPoint> demoSites_;
-    struct DemoSale {
-        int month = 0;
-        int botIndex = 0;
-        QString houseType;
-        int apartments = 0;
-        double pricePerSqm = 0.0;
-    };
-    QVector<DemoSale> demoSales_;
+    QVector<QPoint> availableSites_;
+    QHash<int, QVector<TrackedBuilding>> trackedBuildings_;
+
     int currentMonth_ = 0;
     int totalMonths_ = 12;
-    int nextDemoSite_ = 0;
     int preferredGridSize_ = 16;
     bool autoplayRunning_ = false;
 };
