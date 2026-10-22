@@ -40,7 +40,7 @@ void CityMapWidget::setOwnerColors(const QVector<QColor> &colors) {
 }
 
 void CityMapWidget::setGridSize(int size) {
-    mapRows_ = qBound(12, size, 20);
+    mapRows_ = qBound(12, size, 35);
     mapColumns_ = mapRows_;
     update();
 }

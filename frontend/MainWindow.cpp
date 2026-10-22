@@ -595,9 +595,12 @@ void MainWindow::openSettingsDialog() {
     layout->addWidget(title);
     auto *form = new QFormLayout;
     auto *grid = new QComboBox(&dialog);
-    grid->addItem(QStringLiteral("12 × 12 — компактный город"), 12);
-    grid->addItem(QStringLiteral("16 × 16 — мегаполис"), 16);
-    grid->addItem(QStringLiteral("20 × 20 — большая карта"), 20);
+    grid->addItem(QStringLiteral("12 × 12"), 12);
+    grid->addItem(QStringLiteral("16 × 16"), 16);
+    grid->addItem(QStringLiteral("20 × 20"), 20);
+    grid->addItem(QStringLiteral("30 × 30"), 30);
+    grid->addItem(QStringLiteral("35 × 35"), 35);
+    grid->addItem(QStringLiteral("40 × 40"), 40);
     int currentIndex = grid->findData(preferredGridSize_);
     if (currentIndex >= 0) grid->setCurrentIndex(currentIndex);
     form->addRow(QStringLiteral("Размер сетки"), grid);
