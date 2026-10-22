@@ -654,7 +654,7 @@ void MainWindow::startGame(const QVector<BotSetup> &setups, int months, int grid
 
     bots_.clear();
     buildings_.clear();
-    trackedBuildings_.clear();
+    cellById_.clear();
     buildAvailableSites(gridSize);
 
     cityMap_->setGridSize(gridSize);
@@ -769,111 +769,65 @@ void MainWindow::buildAvailableSites(int gridSize) {
     }
 }
 
-bool MainWindow::matchesProgress(const BuildingView &o, const BuildingView &n) const {
-    if (o.buildingType != n.buildingType) return false;
-    if (o.hasHouseType != n.hasHouseType) return false;
-    if (o.hasHouseType && o.houseType != n.houseType) return false;
-
-    // Оба строятся: месяц ровно +1
-    if (!o.isBuilt && !n.isBuilt) {
-        return n.monthsBuilt == o.monthsBuilt + 1;
-    }
-
-    // Только что достроилось
-    if (!o.isBuilt && n.isBuilt) {
-        return true;
-    }
-
-    // Оба построены: проданных квартир не убывает
-    if (o.isBuilt && n.isBuilt) {
-        return n.soldApartments >= o.soldApartments;
-    }
-
-    return false;
-}
-
-void MainWindow::rebuildBuildingVisuals() {
+void MainWindow::rebuildBuildingVisuals()
+{
     buildings_.clear();
     if (!engine_) {
         return;
     }
 
-    QSet<QPoint> usedCells;
-    for (auto it = trackedBuildings_.constBegin(); it != trackedBuildings_.constEnd(); ++it) {
-        for (const TrackedBuilding &tb : it.value()) {
-            usedCells.insert(tb.cell);
-        }
-    }
-
-    QHash<int, QVector<TrackedBuilding>> newTracked;
     const auto &players = engine_->getState().getPlayers();
 
+    std::vector<PublicView> views;
+    views.reserve(players.size());
     for (std::size_t pi = 0; pi < players.size(); ++pi) {
-        const int playerId = players[pi]->getId();
-        const PublicView view = engine_->getState().createPublicView(playerId);
-
-        QVector<BuildingView> current;
-        current.reserve(static_cast<int>(view.getOwnBuildings().size()));
-        for (const BuildingView &bv : view.getOwnBuildings()) {
-            current.append(bv);
-        }
-
-        const QVector<TrackedBuilding> old = trackedBuildings_.value(playerId);
-        QVector<bool> oldUsed(old.size(), false);
-        QVector<TrackedBuilding> fresh;
-        fresh.reserve(current.size());
-
-        // Фаза 1: сопоставление с прошлым кадром
-        for (const BuildingView &bv : current) {
-            int match = -1;
-            for (int i = 0; i < old.size(); ++i) {
-                if (oldUsed[i]) continue;
-                if (matchesProgress(old[i].view, bv)) {
-                    match = i;
-                    break;
-                }
-            }
-            TrackedBuilding tb;
-            tb.view = bv;
-            if (match >= 0) {
-                oldUsed[match] = true;
-                tb.cell = old[match].cell;
-            } else {
-                tb.cell = QPoint(-1, -1);
-            }
-            fresh.append(tb);
-        }
-
-        // Фаза 2: освободить клетки исчезнувших зданий
-        for (int i = 0; i < old.size(); ++i) {
-            if (!oldUsed[i]) {
-                usedCells.remove(old[i].cell);
-            }
-        }
-
-        // Фаза 3: выделить клетки новым зданиям
-        for (TrackedBuilding &tb : fresh) {
-            if (tb.cell.x() >= 0) continue;
-            for (const QPoint &site : availableSites_) {
-                if (!usedCells.contains(site)) {
-                    tb.cell = site;
-                    usedCells.insert(site);
-                    break;
-                }
-            }
-        }
-
-        // Отрисовка
-        for (const TrackedBuilding &tb : fresh) {
-            if (tb.cell.x() < 0) continue;
-            buildings_.append(toVisual(tb.view, static_cast<int>(pi),
-                                       tb.cell.x(), tb.cell.y()));
-        }
-
-        newTracked[playerId] = fresh;
+        views.push_back(engine_->getState().createPublicView(players[pi]->getId()));
     }
 
-    trackedBuildings_ = newTracked;
+    QSet<QPoint> usedCells;
+    QHash<int, QPoint> newCellById;
+
+    for (const PublicView &view : views) {
+        for (const BuildingView &bv : view.getOwnBuildings()) {
+            if (bv.id < 0) continue;
+            const auto it = cellById_.constFind(bv.id);
+            if (it != cellById_.constEnd()) {
+                newCellById.insert(bv.id, it.value());
+                usedCells.insert(it.value());
+            }
+        }
+    }
+
+    for (const PublicView &view : views) {
+        for (const BuildingView &bv : view.getOwnBuildings()) {
+            if (bv.id < 0) continue;
+            if (newCellById.contains(bv.id)) continue;
+
+            QPoint cell(-1, -1);
+            for (const QPoint &site : availableSites_) {
+                if (!usedCells.contains(site)) {
+                    cell = site;
+                    break;
+                }
+            }
+            if (cell.x() < 0) continue;
+
+            usedCells.insert(cell);
+            newCellById.insert(bv.id, cell);
+        }
+    }
+
+    for (std::size_t pi = 0; pi < views.size(); ++pi) {
+        for (const BuildingView &bv : views[pi].getOwnBuildings()) {
+            if (bv.id < 0) continue;
+            const auto it = newCellById.constFind(bv.id);
+            if (it == newCellById.constEnd()) continue;
+            buildings_.append(toVisual(bv, static_cast<int>(pi),
+                                       it->x(), it->y()));
+        }
+    }
+
+    cellById_ = newCellById;
 }
 
 void MainWindow::refreshFromEngine() {
@@ -881,7 +835,6 @@ void MainWindow::refreshFromEngine() {
         return;
     }
 
-    // 1. Заполнить bots_ из состояния движка
     bots_.clear();
     const auto &players = engine_->getState().getPlayers();
     for (std::size_t i = 0; i < players.size(); ++i) {
@@ -911,10 +864,8 @@ void MainWindow::refreshFromEngine() {
         bots_.append(b);
     }
 
-    // 2. Перестроить визуализацию зданий
     rebuildBuildingVisuals();
 
-    // 3. Обновить UI
     currentMonth_ = engine_->getCurrentMonth();
     if (monthLabel_) {
         monthLabel_->setText(QStringLiteral("Месяц: %1 / %2")
@@ -985,9 +936,9 @@ void MainWindow::refreshSalesTable() {
         }
 
         const QString typeName =
-            (sale.houseType == HouseType::Panel)        ? QStringLiteral("Панельный")
-          : (sale.houseType == HouseType::Monolithic)   ? QStringLiteral("Монолитный")
-                                                        : QStringLiteral("Кирпичный");
+            (sale.houseType == HouseType::Panel) ? QStringLiteral("Панельный")
+            : (sale.houseType == HouseType::Monolithic) ? QStringLiteral("Монолитный")
+            : QStringLiteral("Кирпичный");
 
         const QStringList values = {
             QString::number(sale.month),
@@ -1018,9 +969,11 @@ void MainWindow::rebuildBotPanels() {
     }
 
     clearLayout(leftBotsLayout_);
+
     for (int i = 0; i < bots_.size(); ++i) {
         leftBotsLayout_->addWidget(createStatPanel(bots_[i]));
     }
+
     leftBotsLayout_->addStretch();
 }
 

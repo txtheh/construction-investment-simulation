@@ -7,6 +7,7 @@ public:
     Building(double cost, int constructionMonths);
     virtual ~Building() = default;
 
+    int id() const;
     double cost() const;
     int constructionMonths() const;
     int monthsBuilt() const;
@@ -24,6 +25,7 @@ private:
     int monthsBuiltValue;
     double spentValue;
     int startOrderValue;
+    int id_;
 };
 
 class House : public Building {

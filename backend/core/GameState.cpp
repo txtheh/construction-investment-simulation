@@ -2,9 +2,11 @@
 #include <stdexcept>
 #include <utility>
 
+
 BuildingView GameState::makeBuildingView(const Building& building, bool detailed) const
 {
     BuildingView view;
+    view.id = building.id();
     view.isBuilt = building.isBuilt();
     view.monthsBuilt = building.monthsBuilt();
     view.constructionMonths = building.constructionMonths();
@@ -106,47 +108,58 @@ District GameState::getDistrict() const
 PublicView GameState::createPublicView(int playerId) const
 {
     const Player* selectedPlayer = nullptr;
+
     for (const auto& player : players_) {
         if (player && player->getId() == playerId) {
             selectedPlayer = player.get();
             break;
         }
     }
+
     if (!selectedPlayer) {
         throw std::out_of_range("Player ID was not found in the game state");
     }
+
     PublicView view;
     view.setContext(playerId, currentMonth_, getCalendarMonth(),
                     selectedPlayer->getCapital(),
                     selectedPlayer->getHousingAdBudget(),
                     selectedPlayer->getSupermarketAdBudget());
     view.setHistory(salesHistory_, demandHistory_);
+
     for (const auto& building : selectedPlayer->getBuildingQueue()) {
-        if (building) {
+        if (building && !building->isBuilt()) {
             view.addOwnBuilding(makeBuildingView(*building, true));
         }
     }
+
     for (const House& house : selectedPlayer->getBuiltHouses()) {
         view.addOwnBuilding(makeBuildingView(house, true));
     }
+    
     for (const Supermarket& supermarket : selectedPlayer->getBuiltSupermarkets()) {
         view.addOwnBuilding(makeBuildingView(supermarket, true));
     }
+
     for (const auto& player : players_) {
         if (!player || player->getId() == playerId) {
             continue;
         }
+
         OpponentView opponent;
         opponent.playerId = player->getId();
         opponent.name = player->getName();
+
         for (const auto& building : player->getBuildingQueue()) {
             if (building) {
                 opponent.buildings.push_back(makeBuildingView(*building, false));
             }
         }
+        
         for (const House& house : player->getBuiltHouses()) {
             opponent.buildings.push_back(makeBuildingView(house, false));
         }
+
         for (const Supermarket& supermarket : player->getBuiltSupermarkets()) {
             opponent.buildings.push_back(makeBuildingView(supermarket, false));
         }
