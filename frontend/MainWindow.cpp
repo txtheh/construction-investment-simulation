@@ -399,11 +399,6 @@ QWidget *MainWindow::createGamePage() {
     eventsLayout->addWidget(eventsLog_);
     QWidget *eventsPanel = makeBottomPanel(QStringLiteral("СОБЫТИЯ"), eventsContent);
     bottom->addWidget(eventsPanel, 6);
-
-    QWidget *legendPanel = createLegendPanel();
-    bottom->addWidget(legendPanel, 2);
-    QWidget *miniMapPanel = createMiniMapPanel();
-    bottom->addWidget(miniMapPanel, 2);
     root->addLayout(bottom);
 
     connect(nextMonthButton, &QPushButton::clicked, this, [this]() { advanceMonth(); });
