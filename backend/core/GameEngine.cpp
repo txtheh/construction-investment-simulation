@@ -41,7 +41,11 @@ void GameEngine::startGame()
 
     pendingHousingRevenue_.assign(players.size(), 0.0);
     pendingSupermarketProfit_.assign(players.size(), 0.0);
-
+    if (state_.getCurrentMonth() == 0) {  // В нулевом месяце строительство ещё не запускается
+        started_ = true;
+        updateTotalCapital();
+        return;
+    }
     std::vector<PublicView> views;
 
     for (const auto& player : players) {

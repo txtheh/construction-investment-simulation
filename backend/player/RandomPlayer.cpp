@@ -36,7 +36,7 @@ Decision RandomPlayer::askDecision(const PublicView& view)
     std::uniform_int_distribution<int> buildCount(0, 2);
 
     const int desiredBuilds = buildCount(generator_);
-    double plannedMonthlyPayments = 0.0;
+    double plannedConstructionCost = 0.0;
 
     for (int i = 0; i < desiredBuilds; ++i) {
 
@@ -45,7 +45,7 @@ Decision RandomPlayer::askDecision(const PublicView& view)
         for (const auto& choice : choices) {
             if (strategy_utils::affordableNewBuildingCount(
                     view, config, choice.first, choice.second, ads,
-                    plannedMonthlyPayments) > 0) {
+                    plannedConstructionCost) > 0) {
                 affordable.push_back(choice);
             }
         }
@@ -71,7 +71,7 @@ Decision RandomPlayer::askDecision(const PublicView& view)
             ++existing->count;
         }
 
-        plannedMonthlyPayments += strategy_utils::monthlyPayment(
+        plannedConstructionCost += strategy_utils::buildingCost(
             config, choice.first, choice.second);
     }
 

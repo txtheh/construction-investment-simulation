@@ -24,6 +24,43 @@ double monthlyPayment(const Config& config, BuildingType buildingType, HouseType
     return months > 0 ? cost / static_cast<double>(months) : 0.0;
 }
 
+double buildingCost( //короче, считает стоимость нового объекта, а не только платеж за месяц
+    const Config& config,
+    BuildingType buildingType,
+    HouseType houseType)
+{
+    if (buildingType == BuildingType::Supermarket) {
+        return config.supermarket.cost;
+    }
+
+    return getHouseConfig(config, houseType).cost;
+}
+
+double remainingConstructionCost( //учитываем затраты для заверш начатых домов
+    const PublicView& view, //чтобы не тратить деньги на новые проекты
+    const Config& config)
+{
+    double total = 0.0;
+
+    for (const BuildingView& building : view.getOwnBuildings()) {
+        if (building.isBuilt
+            || building.constructionMonths <= building.monthsBuilt) {
+            continue;
+        }
+
+        const double cost = buildingCost(
+            config, building.buildingType, building.houseType);
+
+        const int monthsLeft =
+            building.constructionMonths - building.monthsBuilt;
+
+        total += cost * static_cast<double>(monthsLeft)
+                 / building.constructionMonths;
+    }
+
+    return total;
+}
+
 int availableApartments(const PublicView& view, HouseType type)
 {
     int total = 0;
@@ -110,8 +147,8 @@ AdBudgets fitAdBudgets(const PublicView& view, const Config& config,
         supermarketBudget = 0.0;
     }
 
-    const double cashAfterReserve = std::max(
-        0.0, view.getCash() - nextConstructionPayments(view, config));
+    const double cashAfterReserve = std::max( //сначала деньги на бюджет, потом на рекламу
+        0.0, view.getCash() - remainingConstructionCost(view, config));
 
     const double requestedCost = (housingBudget + supermarketBudget) * 1000.0;
 
@@ -124,28 +161,37 @@ AdBudgets fitAdBudgets(const PublicView& view, const Config& config,
     return {housingBudget, supermarketBudget};
 }
 
-int affordableNewBuildingCount(const PublicView& view, const Config& config,
-                               BuildingType buildingType, HouseType houseType,
-                               const AdBudgets& ads, double plannedMonthlyPayments)
+int affordableNewBuildingCount(
+    const PublicView& view,
+    const Config& config,
+    BuildingType buildingType,
+    HouseType houseType,
+    const AdBudgets& ads,
+    double plannedConstructionCost)
 {
-    if (view.getCurrentMonth() > 0 && view.getCurrentMonth() >= config.gameMonths) {
-        return 0;
-    }
-    
-    const double payment = monthlyPayment(config, buildingType, houseType);
-    if (payment <= 0.0) {
+    if (view.getCurrentMonth() >= config.gameMonths) {
         return 0;
     }
 
-    const double availableCash = view.getCash()
+    const double cost = buildingCost(
+        config, buildingType, houseType);
+
+    if (cost <= 0.0 || !std::isfinite(cost)) {
+        return 0;
+    }
+
+    const double availableCash =
+        view.getCash()
         - (ads.housing + ads.supermarket) * 1000.0
-        - nextConstructionPayments(view, config)
-        - plannedMonthlyPayments;
-    if (availableCash <= 0.0) {
+        - remainingConstructionCost(view, config)
+        - plannedConstructionCost;
+
+    if (availableCash < cost) {
         return 0;
     }
 
-    return static_cast<int>(std::floor((availableCash + 1e-8) / payment));
+    return static_cast<int>(
+        std::floor((availableCash + 1e-8) / cost));
 }
 
 double fairPricePerSqm(const Config& config, HouseType type)

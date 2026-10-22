@@ -24,8 +24,8 @@ Decision RulesValidator::validate(const Decision& decision,
     if (!std::isfinite(housingAds) || housingAds < 0.0) housingAds = 0.0;
     if (!std::isfinite(marketAds) || marketAds < 0.0) marketAds = 0.0;
 
-    const double existingPayments = 
-        strategy_utils::nextConstructionPayments(view, config_);
+    const double existingPayments = // резерв денег на сущ строеки, чтобы новые заказы и реклама
+        strategy_utils::remainingConstructionCost(view, config_); //не повысились
     const double maxAdsCost = std::max(0.0, view.getCash() - existingPayments);
     const double requestedAdsCost = (housingAds + marketAds) * 1000.0;
 
@@ -44,8 +44,8 @@ Decision RulesValidator::validate(const Decision& decision,
         if (order.count <= 0) continue;
 
         const double payment =
-            strategy_utils::monthlyPayment(config_, 
-                    order.buildingType, order.houseType);
+            strategy_utils::buildingCost(
+                config_, order.buildingType, order.houseType);
 
         if (payment <= 0.0) continue;
 

@@ -11,6 +11,14 @@ BuilderPlayer::BuilderPlayer(int id, std::string name, const Config& config)
 
 Decision BuilderPlayer::askDecision(const PublicView& view)
 {
+    if (view.getCurrentMonth() == 0) { //эта проверка, чтобы заказы можно было сделать на след месяц
+        return Decision(
+            getId(), 0,
+            std::vector<ConstructionOrder>{},
+            std::vector<HousingOfferDecision>{},
+            0.0, 0.0
+            );
+    }
     const Config& config = getConfig();
     const auto ads = strategy_utils::fitAdBudgets(view, config, 1.0, 0.0);
 
