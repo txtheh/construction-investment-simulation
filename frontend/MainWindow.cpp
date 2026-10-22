@@ -896,7 +896,13 @@ void MainWindow::refreshFromEngine() {
     rebuildBotPanels();
 
     cityMap_->setOwnerColors(botColors.mid(0, bots_.size()));
-    cityMap_->setBuildings(buildings_);
+
+    if (engine_->getCurrentMonth() != 0) {
+        cityMap_->setBuildings(buildings_);
+    } else {
+        cityMap_->setBuildings(QVector<BuildingVisual>());
+    }
+
     if (auto *miniMap = dynamic_cast<MiniMapWidget *>(miniMap_)) {
         miniMap->setBuildings(buildings_, botColors.mid(0, bots_.size()));
     }
