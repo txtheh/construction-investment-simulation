@@ -35,6 +35,7 @@ struct Config {
 
     double initialCapital = 37000000;
     int startMonth = 3;
+    int maxBuildingsOnMap = -1;
 
     HouseConfig panelHouse{8000000, 7, 60, 50};
     HouseConfig monolithicHouse{10000000, 9, 60, 55};

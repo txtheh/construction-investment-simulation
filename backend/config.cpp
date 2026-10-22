@@ -38,16 +38,18 @@ bool isConfigValid(const Config& config)
     if (config.playerCount < 2 || config.playerCount > 5
         || config.gameMonths < 6 || config.gameMonths > 24
         || !std::isfinite(config.initialCapital) || config.initialCapital <= 0.0
-        || config.startMonth < 1 || config.startMonth > 12)
-{
+        || config.startMonth < 1 || config.startMonth > 12) {
         return false;
     }
 
     if (!isHouseConfigValid(config.panelHouse)
         || !isHouseConfigValid(config.monolithicHouse)
         || !isHouseConfigValid(config.brickHouse)
-        || !isSupermarketConfigValid(config.supermarket))
-{
+        || !isSupermarketConfigValid(config.supermarket)) {
+        return false;
+    }
+
+    if (config.maxBuildingsOnMap < -1) {
         return false;
     }
 
@@ -62,14 +64,12 @@ bool isConfigValid(const Config& config)
         || !std::isfinite(config.housingAdBonusPer1000) || config.housingAdBonusPer1000 < 0.0
         || !std::isfinite(config.supermarketAdBonusPer500) || config.supermarketAdBonusPer500 < 0.0
         || !std::isfinite(config.supermarketCapitalMultiplier)
-        || config.supermarketCapitalMultiplier <= 0.0)
-{
+        || config.supermarketCapitalMultiplier <= 0.0) {
         return false;
     }
 
     if (config.housingSeason.size() != 12
-        || config.supermarketSeason.size() != 12)
-{
+        || config.supermarketSeason.size() != 12) {
         return false;
     }
 
