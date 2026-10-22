@@ -18,6 +18,16 @@ Decision RulesValidator::validate(const Decision& decision,
                 std::vector<HousingOfferDecision>{}, 0.0, 0.0);
     }
 
+    int totalBuildings = static_cast<int>(view.getOwnBuildings().size());
+
+    for (const OpponentView &opp : view.getOpponents()) {
+        totalBuildings += static_cast<int>(opp.buildings.size());
+    }
+
+    int remainingSlots = config_.maxBuildingsOnMap > 0
+        ? std::max(0, config_.maxBuildingsOnMap - totalBuildings)
+        : std::numeric_limits<int>::max();
+
     double housingAds = decision.getHousingAdBudget();
     double marketAds = decision.getSupermarketAdBudget();
 
@@ -42,6 +52,7 @@ Decision RulesValidator::validate(const Decision& decision,
 
     for (const ConstructionOrder& order : decision.getConstructionOrders()) {
         if (order.count <= 0) continue;
+        if (remainingSlots <= 0) break;
 
         const double payment =
             strategy_utils::buildingCost(
@@ -57,10 +68,11 @@ Decision RulesValidator::validate(const Decision& decision,
             ? std::numeric_limits<int>::max()
             : static_cast<int>(maxCountD);
 
-        const int count = std::min(order.count, maxCount);
+        const int count = std::min({order.count, maxCount, remainingSlots});
 
         validOrders.push_back({order.buildingType, order.houseType, count});
         availableForNew -= payment * count;
+        remainingSlots -= count;
     }
 
     std::vector<HousingOfferDecision> validOffers;
