@@ -8,6 +8,7 @@
 // взгляд на дом
 struct BuildingView {
     BuildingType buildingType = BuildingType::House;
+    int id = -1;
     bool hasHouseType = false;
     HouseType houseType = HouseType::Panel;
     bool isBuilt = false;

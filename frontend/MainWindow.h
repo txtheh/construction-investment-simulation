@@ -30,10 +30,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 private:
-    struct TrackedBuilding {
-        BuildingView view;
-        QPoint cell;
-    };
 
     QWidget *createMenuPage();
     QWidget *createGamePage();
@@ -54,7 +50,6 @@ private:
     void showResults();
     void refreshSalesTable();
     void buildAvailableSites(int gridSize);
-    bool matchesProgress(const BuildingView &oldBv, const BuildingView &newBv) const;
 
     QStackedWidget *pages_ = nullptr;
     QWidget *menuPage_ = nullptr;
@@ -76,7 +71,7 @@ private:
     QVector<BotInfo> bots_;
     QVector<BuildingVisual> buildings_;
     QVector<QPoint> availableSites_;
-    QHash<int, QVector<TrackedBuilding>> trackedBuildings_;
+    QHash<int, QPoint> cellById_;
 
     int currentMonth_ = 0;
     int totalMonths_ = 12;

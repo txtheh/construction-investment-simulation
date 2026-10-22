@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <cmath>
 
+namespace {
+    int nextBuildingId = 0;
+}
 
 // описание общего класса-интерфейса building
 Building::Building(double cost, int constructionMonths)
@@ -10,8 +13,13 @@ Building::Building(double cost, int constructionMonths)
       constructionMonthsValue(constructionMonths),
       monthsBuiltValue(0),
       spentValue(0.0),
-      startOrderValue(0)
+      startOrderValue(0),
+      id_(nextBuildingId++)
 {}
+
+int Building::id() const {
+    return id_;
+}
 
 double Building::cost() const
 {
