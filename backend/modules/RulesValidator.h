@@ -9,7 +9,8 @@
 class RulesValidator {
 public:
     RulesValidator(const Config& config);
-    Decision validate(const Decision& decision, const PublicView& view) const;
+    Decision validate(const Decision& decision, const PublicView& view,
+            int alreadyCommittedBuildings = 0) const;
 
 private:
     Config config_;

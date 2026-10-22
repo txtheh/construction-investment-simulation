@@ -41,7 +41,7 @@ void GameEngine::startGame()
 
     pendingHousingRevenue_.assign(players.size(), 0.0);
     pendingSupermarketProfit_.assign(players.size(), 0.0);
-    if (state_.getCurrentMonth() == 0) {  // В нулевом месяце строительство ещё не запускается
+    if (state_.getCurrentMonth() == 0) {
         started_ = true;
         updateTotalCapital();
         return;
@@ -136,8 +136,14 @@ bool GameEngine::advanceMonth()
     }
 
     RulesValidator validator(config_);
+    int committed = 0;
+
     for (std::size_t i = 0; i < players.size(); ++i) {
-        decisions[i] = validator.validate(decisions[i], views[i]);
+        decisions[i] = validator.validate(decisions[i], views[i], committed);
+
+        for (const ConstructionOrder& o : decisions[i].getConstructionOrders()) {
+            committed += o.count;
+        }
     }
 
     for (std::size_t i = 0; i < players.size(); ++i) {

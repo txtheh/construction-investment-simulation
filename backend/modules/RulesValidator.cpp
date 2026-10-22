@@ -9,7 +9,7 @@
 RulesValidator::RulesValidator(const Config& config) : config_(config) {}
 
 Decision RulesValidator::validate(const Decision& decision, 
-        const PublicView& view) const
+        const PublicView& view, int alreadyCommittedBuildings) const
 {
     if (decision.getIdPlayer() != view.getPlayerId()
         || decision.getMonth() != view.getCurrentMonth()) {
@@ -24,9 +24,17 @@ Decision RulesValidator::validate(const Decision& decision,
         totalBuildings += static_cast<int>(opp.buildings.size());
     }
 
-    int remainingSlots = config_.maxBuildingsOnMap > 0
-        ? std::max(0, config_.maxBuildingsOnMap - totalBuildings)
-        : std::numeric_limits<int>::max();
+    int remainingSlots = std::numeric_limits<int>::max();
+
+    if (config_.maxBuildingsOnMap > 0) {
+        remainingSlots = config_.maxBuildingsOnMap
+            - totalBuildings
+            - alreadyCommittedBuildings;
+
+        if (remainingSlots < 0) {
+            remainingSlots = 0;
+        }
+    }
 
     double housingAds = decision.getHousingAdBudget();
     double marketAds = decision.getSupermarketAdBudget();

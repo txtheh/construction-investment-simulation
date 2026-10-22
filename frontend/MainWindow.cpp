@@ -617,13 +617,15 @@ void MainWindow::openSettingsDialog() {
 }
 
 void MainWindow::openSetupDialog() {
-    GameSetupDialog dialog(this);
+    GameSetupDialog dialog(preferredGridSize_, this);
+
     if (dialog.exec() == QDialog::Accepted) {
-        startGame(dialog.botSetups(), dialog.gameMonths(), preferredGridSize_);
+        startGame(dialog.botSetups(), dialog.gameMonths(),
+                  preferredGridSize_, dialog.maxBuildings());
     }
 }
 
-void MainWindow::startGame(const QVector<BotSetup> &setups, int months, int gridSize) {
+void MainWindow::startGame(const QVector<BotSetup> &setups, int months, int gridSize, int maxBuildings) {
     autoplayTimer_->stop();
     autoplayRunning_ = false;
     autoplayButton_->setText(QStringLiteral("⏩  Промотка"));
@@ -633,6 +635,20 @@ void MainWindow::startGame(const QVector<BotSetup> &setups, int months, int grid
         Config config;
         config.playerCount = setups.size();
         config.gameMonths = months;
+
+        int cells = 0;
+
+        for (int row = 0; row < gridSize; ++row) {
+            for (int column = 0; column < gridSize; ++column) {
+                if (row % 4 != 0 && column % 4 != 0) {
+                    ++cells;
+                }
+            }
+        }
+
+        config.maxBuildingsOnMap = (maxBuildings > 0)
+            ? std::min(maxBuildings, cells)
+            : cells;
 
         engine_ = std::make_unique<GameEngine>(config);
 

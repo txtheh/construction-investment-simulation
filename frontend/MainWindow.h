@@ -38,7 +38,8 @@ private:
     QWidget *createRealtorPanel();
     QWidget *createMiniMapPanel();
     void openSetupDialog();
-    void startGame(const QVector<BotSetup> &setups, int months, int gridSize);
+    void startGame(const QVector<BotSetup> &setups, int months, 
+            int gridSize, int maxBuildings);
     void openSettingsDialog();
     void advanceMonth();
     void toggleAutoplay();

@@ -33,7 +33,7 @@ QStringList strategyIds() {
 }
 }
 
-GameSetupDialog::GameSetupDialog(QWidget *parent)
+GameSetupDialog::GameSetupDialog(int gridSize, QWidget *parent)
     : QDialog(parent) {
     setWindowTitle(QStringLiteral("Новая игра"));
     setMinimumWidth(610);
@@ -57,6 +57,16 @@ GameSetupDialog::GameSetupDialog(QWidget *parent)
     title->setStyleSheet("font-size: 22px; font-weight: 700;");
     root->addWidget(title);
 
+    int cells = 0;
+
+    for (int row = 0; row < gridSize; ++row) {
+        for (int column = 0; column < gridSize; ++column) {
+            if (row % 4 != 0 && column % 4 != 0) {
+                ++cells;
+            }
+        }
+    }
+
     auto *form = new QFormLayout;
     botCount_ = new QSpinBox(this);
     botCount_->setRange(2, 5);
@@ -65,8 +75,15 @@ GameSetupDialog::GameSetupDialog(QWidget *parent)
     months_->setRange(6, 24);
     months_->setValue(12);
     months_->setSuffix(QStringLiteral(" месяцев"));
+
+    maxBuildings_ = new QSpinBox(this);
+    maxBuildings_->setRange(0, cells);
+    maxBuildings_->setValue(0);
+    maxBuildings_->setSpecialValueText(QStringLiteral("Авто (%1)").arg(cells));
+
     form->addRow(QStringLiteral("Количество ботов"), botCount_);
     form->addRow(QStringLiteral("Длительность"), months_);
+    form->addRow(QStringLiteral("Максимум построек"), maxBuildings_);
     root->addLayout(form);
 
     auto *participantsTitle = new QLabel(QStringLiteral("Участники"), this);
@@ -152,4 +169,8 @@ QVector<BotSetup> GameSetupDialog::botSetups() const {
 
 int GameSetupDialog::gameMonths() const {
     return months_->value();
+}
+
+int GameSetupDialog::maxBuildings() const {
+    return maxBuildings_->value();
 }
