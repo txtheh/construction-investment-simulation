@@ -512,35 +512,69 @@ QWidget *MainWindow::createLegendPanel() {
 QWidget *MainWindow::createRealtorPanel() {
     auto *content = new QWidget;
     auto *layout = new QVBoxLayout(content);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(6);
 
-    auto *subtitle = new QLabel(QStringLiteral("Последние сделки (месяц, участник, тип, кв., цена/м²)"), content);
-    subtitle->setStyleSheet("color: #9dafbd; font-size: 11px;");
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(5);
+
+    auto *subtitle = new QLabel(
+        QStringLiteral("Продажи через агентство"), content);
+    subtitle->setStyleSheet(
+        "color: #9dafbd; font-size: 11px;");
+    subtitle->setSizePolicy(
+        QSizePolicy::Preferred, QSizePolicy::Fixed);
+    subtitle->setFixedHeight(22);
     layout->addWidget(subtitle);
 
     salesTable_ = new QTableWidget(content);
     salesTable_->setColumnCount(5);
     salesTable_->setHorizontalHeaderLabels({
-        QStringLiteral("Мес."), QStringLiteral("Участник"),
-        QStringLiteral("Тип"), QStringLiteral("Кв."), QStringLiteral("₽/м²")
+        QStringLiteral("Месяц"),
+        QStringLiteral("Продавец"),
+        QStringLiteral("Дом"),
+        QStringLiteral("Квартир"),
+        QStringLiteral("₽/м²")
     });
-    salesTable_->verticalHeader()->setVisible(false);
-    salesTable_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    salesTable_->horizontalHeader()->setStretchLastSection(true);
-    salesTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    salesTable_->setSelectionMode(QAbstractItemView::NoSelection);
-    salesTable_->setStyleSheet(
-        "QTableWidget { background: #1b2936; color: #e6edf3; "
-        "gridline-color: #30404d; border: 1px solid #354657; }"
-        "QHeaderView::section { background: #253442; color: #c7d4df; "
-        "border: none; padding: 4px; }"
-    );
-    layout->addWidget(salesTable_, 1);
 
-    QWidget *panel = makeBottomPanel(QStringLiteral("РИЕЛТОРСКОЕ АГЕНТСТВО"), content);
+    salesTable_->verticalHeader()->setVisible(false);
+    salesTable_->horizontalHeader()->setSectionResizeMode(
+        QHeaderView::Stretch);
+
+    salesTable_->setHorizontalScrollBarPolicy(
+        Qt::ScrollBarAlwaysOff);
+    salesTable_->setVerticalScrollBarPolicy(
+        Qt::ScrollBarAsNeeded);
+
+    salesTable_->setEditTriggers(
+        QAbstractItemView::NoEditTriggers);
+    salesTable_->setSelectionMode(
+        QAbstractItemView::NoSelection);
+
+    salesTable_->setStyleSheet(
+        "QTableWidget {"
+        " background: #1b2936;"
+        " color: #e6edf3;"
+        " font-size: 11px;"
+        " gridline-color: #30404d;"
+        " border: 1px solid #354657;"
+        "}"
+        "QHeaderView::section {"
+        " background: #253442;"
+        " color: #c7d4df;"
+        " border: none;"
+        " padding: 3px;"
+        " font-size: 10px;"
+        "}"
+        );
+
+    salesTable_->setFixedHeight(155);
+    layout->addWidget(salesTable_);
+
+    QWidget *panel = makeBottomPanel(
+        QStringLiteral("РИЕЛТОРСКОЕ АГЕНТСТВО"), content);
+
     panel->setMinimumWidth(305);
-    panel->setMinimumHeight(430);
+    panel->setMinimumHeight(0);
+
     return panel;
 }
 
@@ -914,7 +948,7 @@ void MainWindow::refreshSalesTable() {
     salesTable_->setRowCount(0);
 
     const auto &history = engine_->getState().getSalesHistory();
-    const int count = qMin(4, static_cast<int>(history.size()));
+    const int count = static_cast<int>(history.size());
 
     if (count == 0) {
         salesTable_->setRowCount(1);
@@ -924,11 +958,15 @@ void MainWindow::refreshSalesTable() {
         salesTable_->setItem(0, 0, item);
         salesTable_->setSpan(0, 0, 1, 5);
         salesTable_->setRowHeight(0, 23);
+        salesTable_->setFixedHeight(
+            salesTable_->horizontalHeader()->height()
+            + salesTable_->verticalHeader()->length()
+            + 2 * salesTable_->frameWidth() + 6);
         return;
     }
-
+    salesTable_->setRowCount(count);
     const auto &players = engine_->getState().getPlayers();
-    const int first = static_cast<int>(history.size()) - count;
+    const int first = 0;
 
     for (int row = 0; row < count; ++row) {
         const SaleRecord &sale = history[first + row];
@@ -965,6 +1003,10 @@ void MainWindow::refreshSalesTable() {
         }
         salesTable_->setRowHeight(row, 20);
     }
+    salesTable_->setFixedHeight(
+        salesTable_->horizontalHeader()->height()
+        + salesTable_->verticalHeader()->length()
+        + 2 * salesTable_->frameWidth() + 6);
 }
 
 void MainWindow::rebuildBotPanels() {
